@@ -1,17 +1,31 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface User {
-    id: string;
+    id?: string;
     name: string;
     email: string;
 }
 
 interface AuthState {
     user: User | null;
-    setUser: (user: User | null) => void;
+    token: string | null;
+    setLoginSuccess: (user: User, token: string) => void;
+    logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-    user: null,
-    setUser: (user) => set({ user }),
-}));
+export const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            user: null,
+            token: null,
+
+            setLoginSuccess: (user, token) => set({ user, token }),
+
+            logout: () => set({ user: null, token: null }),
+        }),
+        {
+            name: "moneta-auth-storage",
+        }
+    )
+);
