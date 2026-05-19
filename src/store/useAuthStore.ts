@@ -10,6 +10,7 @@ interface User {
 interface AuthState {
     user: User | null;
     token: string | null;
+    isAuthenticated: boolean;
     setLoginSuccess: (user: User, token: string) => void;
     logout: () => void;
 }
@@ -19,10 +20,19 @@ export const useAuthStore = create<AuthState>()(
         (set) => ({
             user: null,
             token: null,
+            isAuthenticated: false,
 
-            setLoginSuccess: (user, token) => set({ user, token }),
+            setLoginSuccess: (user, token) => set({ 
+                user, 
+                token, 
+                isAuthenticated: true 
+            }),
 
-            logout: () => set({ user: null, token: null }),
+            logout: () => set({ 
+                user: null, 
+                token: null, 
+                isAuthenticated: false 
+            }),
         }),
         {
             name: "moneta-auth-storage",
