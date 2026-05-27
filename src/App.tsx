@@ -1,13 +1,30 @@
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import{ Dashboard } from "./pages/Dashboard";
+import { Dashboard } from "./pages/Dashboard";
+import { Landing } from "./pages/Landing"; 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import './App.css';
 
-const router = createBrowserRouter([
+const HomeGuard = () => {
+  const skipLanding = localStorage.getItem("skipLanding") === "true";
+  
+  if (skipLanding) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <Navigate to="/welcome" replace />;
+};
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomeGuard />, 
+  },
+  {
+    path: "/welcome",
+    element: <Landing />,
+  },
   {
     path: "/login",
     element: <Login />,
@@ -16,21 +33,15 @@ const router = createBrowserRouter([
     path: "/register",
     element: <Register />,
   },
-
   {
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/",
-        element: <Dashboard />,
-      },
-      {
         path: "/dashboard",
-        element: <Navigate to="/" replace />,
+        element: <Dashboard />,
       },
     ],
   },
-
   {
     path: "*",
     element: <Navigate to="/" replace />,
