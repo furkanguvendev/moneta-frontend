@@ -4,26 +4,21 @@ import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Landing } from "./pages/Landing"; 
 import { ProtectedRoute } from "./components/ProtectedRoute";
-
 import './App.css';
 
-const HomeGuard = () => {
+const LandingGuard = () => {
   const skipLanding = localStorage.getItem("skipLanding") === "true";
   
   if (skipLanding) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/login" replace />;
   }
-  return <Navigate to="/welcome" replace />;
+  return <Landing />;
 };
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomeGuard />, 
-  },
-  {
-    path: "/welcome",
-    element: <Landing />,
+    element: <LandingGuard />,
   },
   {
     path: "/login",
