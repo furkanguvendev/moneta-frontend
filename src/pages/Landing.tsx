@@ -17,11 +17,12 @@ export const Landing = () => {
       
       <header>
         <div>
-          <span>🪙</span>
+          <img src="/assets/logo.svg" alt="Moneta Logo" />
           <span>Moneta</span>
         </div>
         <nav>
           <a href="#features">Özellikler</a>
+          <a href="#architecture">Teknoloji Altyapısı</a>
           <a href="#about">Hakkımızda</a>
           <a href="#faq">Sıkça Sorulan Sorular</a>
         </nav>
@@ -51,6 +52,10 @@ export const Landing = () => {
               <span>Bu ekranı bir daha gösterme</span>
             </label>
           </div>
+
+          <div>
+            <img src="/assets/hero-dashboard-mockup.png" alt="Moneta Dijital Cüzdan Genel Bakış Ekranı" />
+          </div>
         </section>
 
         <section id="features">
@@ -61,28 +66,51 @@ export const Landing = () => {
 
           <div>
             <div>
-              <div>💰</div>
+              <img src="/assets/icons/wallet.svg" alt="Gelir Gider İkonu" />
               <h3>Gelir ve Gider Takibi</h3>
-              <p>Tüm nakit akışınızı tek bir ekrandan anlık olarak kaydedin, kategorize edin ve nereye ne harcadığınızı net olarak görün.</p>
+              <p>Tüm nakit akışınızı, cüzdan hareketlerinizi tek bir ekrandan anlık olarak kaydedin. İşlemlerinizi kategorize ederek nereye ne harcadığınızı net olarak görün.</p>
             </div>
 
             <div>
-              <div>📊</div>
+              <img src="/assets/icons/analytics.svg" alt="Grafik İkonu" />
               <h3>Gelişmiş Analizler ve Grafik</h3>
-              <p>Harcama alışkanlıklarınızı dinamik ve anlaşılır grafiklerle analiz edin. Bütçenizin durumunu raporlarla kontrol altında tutun.</p>
+              <p>Harcama alışkanlıklarınızı dinamik ve anlaşılır analitik grafiklerle inceleyin. DTO yapısıyla optimize edilmiş veri akışı sayesinde bütçenizin durumunu raporlarla kontrol altında tutun.</p>
             </div>
 
             <div>
-              <div>🛡️</div>
-              <h3>Güvenli Dijital Cüzdan</h3>
-              <p>Finansal verileriniz modern şifreleme altyapıları ve güvenli bulut servisleri ile tamamen koruma altında saklanır.</p>
+              <img src="/assets/icons/shield.svg" alt="Güvenlik İkonu" />
+              <h3>Güvenli Kimlik Doğrulama</h3>
+              <p>Hesabınız ve finansal verileriniz Spring Security altyapısı ile koruma altındadır. Güvenli giriş ve yetkilendirme katmanları sayesinde cüzdan verilerinize sadece siz erişebilirsiniz.</p>
             </div>
 
             <div>
-              <div>🎯</div>
-              <h3>Bütçe Hedefleri Koyma</h3>
-              <p>Belirli kategoriler için aylık harcama limitleri belirleyin, sınırları aşmaya yaklaştığınızda bütçenizi koruyun.</p>
+              <img src="/assets/icons/target.svg" alt="Hedef İkonu" />
+              <h3>Bütçe Planlama</h3>
+              <p>Geleceğe yönelik harcamalarınızı güvenle planlayın. Aylık bütçenizi yapılandırarak beklenmedik giderlerin önüne geçin ve finansal sınırlarınızı kendiniz belirleyin.</p>
             </div>
+          </div>
+        </section>
+
+        <section id="architecture">
+          <div>
+            <h2>Güçlü ve Kararlı Altyapı</h2>
+            <p>Arka planda çalışan teknolojilerimiz, finansal işlemlerinizin güvenliğini ve hızını garanti eder.</p>
+          </div>
+
+          <div>
+            <div>
+              <h4>Spring Boot & RESTful API</h4>
+              <p>Temiz istisna yönetimi (clean exception handling) ve optimize edilmiş veri transfer nesneleri (DTOs) ile mimari açıdan kusursuz, hızlı ve kararlı bir API deneyimi sunuyoruz.</p>
+            </div>
+
+            <div>
+              <h4>Supabase & PostgreSQL</h4>
+              <p>Finansal verileriniz bulut üzerinde, ilişkisel veri tabanı modellemesiyle esnek ve veri bütünlüğü (data integrity) tam olarak korunarak saklanır.</p>
+            </div>
+          </div>
+          
+          <div>
+            <img src="/assets/architecture-diagram.png" alt="Moneta Altyapı ve Veri Entegrasyon Şeması" />
           </div>
         </section>
 
@@ -92,8 +120,8 @@ export const Landing = () => {
             <p>
               Moneta, karmaşık finansal tablolar ve anlaşılması zor muhasebe terimleri yerine, 
               size paranızın kontrolünü tamamen sade ve kullanıcı dostu bir arayüzle sunmak için tasarlandı. 
-              Mühendislik disipliniyle geliştirilen güçlü backend mimarisi sayesinde işlemleriniz her zaman hızlı, 
-              tutarlı ve güvenlidir.
+              Mühendislik disipliniyle geliştirilen güçlü backend mimarisi ve ilişkisel veritabanı entegrasyonu sayesinde 
+              işlemleriniz her zaman hızlı, tutarlı ve yüksek standartlarda güvenlidir.
             </p>
           </div>
         </section>
@@ -111,12 +139,12 @@ export const Landing = () => {
 
             <div>
               <h4>Verilerim ne kadar güvende?</h4>
-              <p>Verileriniz, endüstri standardı güvenlik protokolleri ve ilişkisel veri tabanı koruması altında, tamamen izole bir şekilde saklanır.</p>
+              <p>Verileriniz, Spring Security şifreleme protokolleri ve Supabase bulut veritabanı koruması altında, tamamen izole ve ilişkisel veri bütünlüğü sağlanarak saklanır.</p>
             </div>
 
             <div>
               <h4>"Bu ekranı bir daha gösterme" seçeneği nasıl çalışır?</h4>
-              <p>Bu seçeneği işaretleyip giriş yaptığınızda, tarayıcınız Moneta'yı her açtığında sizi doğrudan giriş ekranına yönlendirir.</p>
+              <p>Bu seçeneği işaretleyip giriş yaptığınızda, tarayıcınızın yerel depolama alanı (localStorage) üzerinde bir değer tutulur ve Moneta'yı her açtığınızda sizi doğrudan giriş ekranına yönlendirir.</p>
             </div>
           </div>
         </section>
