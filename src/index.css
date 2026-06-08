@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --animate-reveal: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.5;
@@ -10,11 +14,11 @@
   --bg-input: #1F2A45;  
   
   --text-primary: #F3F4F6; 
-  --text-muted: #9CA3AF;  
+  --text-muted: #9CA3AF;   
   
   --color-primary: #3B82F6; 
   --color-success: #10B981;
-  --color-danger: #EF4444;  
+  --color-danger: #EF4444;   
   
   color-scheme: dark;
   background-color: var(--bg-main);
@@ -73,11 +77,20 @@ button {
 
 .reveal-section {
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
 .reveal-section.active {
-  opacity: 1;
-  transform: translateY(0);
+  animation: reveal-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
