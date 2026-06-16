@@ -1,4 +1,5 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
+import budget from "../assets/budget.jpeg";
 
 type login = {
   loginName: string;
@@ -16,12 +17,12 @@ export const Login = () => {
   const onSubmit: SubmitHandler<login> = (data) => console.log(data);
 
   return (
-    <div className="flex flex-row w-full min-h-screen justify-around items-center">
-      <div>
-        <img />
-        <h1>MONETA</h1>
-        <h2>Finansal takibin en sade yolu</h2>
-        <button>Daha fazlası</button>
+    <div className="flex flex-col lg:flex-row w-full min-h-screen justify-around items-center">
+      <div className="flex flex-col items-center justify-center gap-2">
+        <img src={budget} className="w-96 rounded-3xl"/>
+        <h1 className="text-3xl lg:text-5xl">MONETA</h1>
+        <h2 className="text-xl lg:text3xl">Finansal takibin en sade yolu</h2>
+        <button className="text">Daha fazlası</button>
       </div>
 
       <div>
@@ -49,23 +50,20 @@ export const Login = () => {
             <a href="/forgot-password">Forgot Password</a>
           </div>
 
-          <button type="submit">Sign in</button>
-
-          <div>
-            <p>or log in using social media</p>
+          <button type="submit">Sign in</button> 
+        </form>
+        <div className="flex flex-col items-center justify-center">
+            <h3>Social Media</h3>
             <div>
-              <button type="button">Google</button>
-              <button type="button">Facebook</button>
-              <button type="button">Instagram</button>
-              <button type="button">LinkedIn</button>
+              <a href="" title="Portfolio"></a>
+              <a href="" title="Linkedin"></a>
+              <a href="" title="About Me"></a>
             </div>
           </div>
-
-          <div>
+        <div>
             <span>Don't have an account? </span>
             <a href="/signup">Click here to sign up.</a>
           </div>
-        </form>
       </div>
     </div>
   );
