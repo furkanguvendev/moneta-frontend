@@ -23,9 +23,9 @@ export const Login = () => {
         <img src={budget} className="w-80 md:w-96 rounded-3xl shadow-2xl border-4 border-white/10 object-cover" alt="Moneta Budget"/>
         <h1 className="text-4xl lg:text-5xl font-black tracking-wider">MONETA</h1>
         <h2 className="text-sm lg:text-base font-medium text-white/90 max-w-xs leading-relaxed">FİNANSAL TAKİBİN EN SADE YOLU</h2>
-        <button className="mt-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 cursor-pointer text-white">
+        <a href="/" className="mt-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 cursor-pointer text-white">
           Daha fazlası
-        </button>
+        </a>
       </div>
 
       <div className="login-form-side">
@@ -81,7 +81,7 @@ export const Login = () => {
 
         <div className="mt-6 text-xs text-white/60 text-center w-full max-w-sm">
           <span>Don't have an account? </span>
-          <a href="/signup" className="text-white font-bold hover:underline ml-1">Click here to sign up.</a>
+          <a href="/register" className="text-white font-bold hover:underline ml-1">Click here to sign up.</a>
         </div>
       </div>
 
