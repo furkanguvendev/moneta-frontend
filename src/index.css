@@ -119,3 +119,45 @@
     @apply bg-[#0b3324]/40 border border-emerald-500/10 rounded-2xl p-5 lg:p-6 shadow-lg shadow-black/20 backdrop-blur-sm transition-all duration-300;
   }
 }
+
+/* Wallet */
+
+.wallets-header-border {
+    @apply border-b border-emerald-950/40 pb-6;
+  }
+
+  .wallet-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .wallet-card-header {
+    @apply flex justify-between items-start mb-6;
+  }
+
+  .wallet-tabs-container {
+    @apply flex gap-2 p-1 bg-[#03140e]/60 rounded-xl mb-6 border border-emerald-950/40;
+  }
+
+  .wallet-tab-btn {
+    @apply flex-1 py-1.5 px-2 text-xs font-semibold rounded-lg transition-all duration-200;
+  }
+
+  .wallet-tab-active {
+    @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-sm;
+  }
+
+  .wallet-tab-inactive {
+    @apply text-slate-400/60 hover:text-slate-200;
+  }
+
+  .progress-track {
+    @apply w-full bg-[#03140e] h-2 rounded-full overflow-hidden border border-emerald-950/20;
+  }
+
+  .progress-bar-transition {
+    @apply h-full transition-all duration-500;
+  }
+
+  .btn-wallet-action {
+    @apply w-full mt-6 py-2.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 text-emerald-400 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200;
+  }
