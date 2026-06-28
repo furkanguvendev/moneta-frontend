@@ -6,8 +6,7 @@ import { Landing } from "./pages/Landing";
 import { Profile } from "./pages/Profile"; 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import './App.css';
-import { Transactions } from "./pages/Transactions";
-import { Wallets } from "./pages/Wallets";
+import { WalletDetail } from "./pages/WalletDetail";
 import { MainLayout } from "./layouts/MainLayout";
 
 const LandingGuard = () => {
@@ -33,31 +32,27 @@ const router = createBrowserRouter([
     element: <Register />,
   },
   {
-  element: <ProtectedRoute />,
-  children: [
-    {
-      element: <MainLayout />,
-      children: [
-        {
-          path: "/dashboard",
-          element: <Dashboard />,
-        },
-        {
-          path: "/transactions", 
-          element: <Transactions />,
-        },
-        {
-          path: "/wallets", 
-          element: <Wallets />,
-        },
-        {
-          path: "/profile", 
-          element: <Profile />,
-        },
-      ],
-    },
-  ],
-},
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <MainLayout />,
+        children: [
+          {
+            path: "/dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "/wallet/:id", 
+            element: <WalletDetail />,
+          },
+          {
+            path: "/profile", 
+            element: <Profile />,
+          },
+        ],
+      },
+    ],
+  },
   {
     path: "*",
     element: <Navigate to="/" replace />,
