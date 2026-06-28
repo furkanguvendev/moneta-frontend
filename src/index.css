@@ -115,19 +115,18 @@
     @apply flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all duration-200 mt-auto text-left;
   }
 
+  /* Dashboard */
   .card-premium {
     @apply bg-[#0b3324]/40 border border-emerald-500/10 rounded-2xl p-5 lg:p-6 shadow-lg shadow-black/20 backdrop-blur-sm transition-all duration-300;
-  }
-}
-
-/* Wallet */
-
-.wallets-header-border {
-    @apply border-b border-emerald-950/40 pb-6;
   }
 
   .wallet-grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  /* WalletDetail */
+  .wallets-header-border {
+    @apply border-b border-emerald-950/40 pb-6;
   }
 
   .wallet-card-header {
@@ -162,46 +161,49 @@
     @apply w-full mt-6 py-2.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 text-emerald-400 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200;
   }
 
-  
-  /* Profile */
+  .tx-badge-income {
+    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 text-xs font-black p-2 rounded-lg;
+  }
+
+  .tx-badge-expense {
+    @apply bg-rose-500/10 text-rose-400 border border-rose-500/10 text-xs font-black p-2 rounded-lg;
+  }
+
+  /* TransactionModal */
+  .form-input-dark {
+    @apply w-full bg-zinc-950/40 border border-emerald-950/40 rounded-xl px-4 py-2.5 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500/30;
+  }
+}
+
+/* Profile */
 
 @utility profile-container {
   @apply space-y-8 p-4 sm:p-6 lg:p-10 text-slate-100 min-h-screen;
 }
-
 @utility profile-header {
   @apply pb-6 border-b border-emerald-950/40;
 }
-
 @utility profile-main-layout {
   @apply flex flex-col lg:flex-row gap-6 items-start w-full overflow-hidden;
 }
-
 @utility profile-info-card {
   @apply w-full lg:w-[32%] flex flex-col items-center text-center p-8 sm:p-10 bg-zinc-950/40 rounded-3xl border border-emerald-950/40 backdrop-blur-md shadow-2xl shadow-black/30 shrink;
 }
-
 @utility profile-avatar {
   @apply w-28 h-28 rounded-full border-2 border-emerald-500/30 object-cover shadow-xl shadow-emerald-950/60 mb-5;
 }
-
 @utility profile-email-section {
   @apply w-full mt-8 pt-6 border-t border-emerald-950/40 text-left space-y-1.5;
 }
-
 @utility profile-wallets-section {
   @apply w-full lg:flex-1 space-y-6;
 }
-
 @utility profile-grid-structure {
   @apply grid grid-cols-1 lg:grid-cols-2 gap-4 w-full;
 }
-
 @utility profile-mini-wallet-card {
   @apply flex flex-col justify-between p-5 bg-zinc-950/40 rounded-2xl border border-emerald-950/30 hover:border-emerald-500/20 transition-all duration-300 shadow-xl shadow-black/10 min-h-[140px] w-full overflow-hidden;
 }
-
 @utility profile-delete-btn {
   @apply p-2 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/30 text-red-400 rounded-xl transition-all duration-200 cursor-pointer;
 }
-
