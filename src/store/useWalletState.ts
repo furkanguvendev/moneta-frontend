@@ -1,60 +1,89 @@
-import { create } from "zustand";
-import { walletService } from "../services/walletService";
-import axios from "axios";
+import { create } from 'zustand';
+import { walletService } from '../services/walletService';
+import { useAuthStore } from './useAuthStore';
 
-interface Wallet {
+export interface Wallet {
     id: number;
     name: string;
     balance: number;
     currency: string;
+    createdAt: string;
 }
 
 interface WalletState {
     wallets: Wallet[];
-    activeWallet: Wallet | null;
+    currentWallet: Wallet | null;
     isLoading: boolean;
     error: string | null;
     fetchWallets: () => Promise<void>;
-    selectWallet: (walletId: number) => Promise<void>;
+    fetchWalletDetail: (walletId: number) => Promise<void>;
+    addWallet: (walletData: { name: string; currency: string }) => Promise<void>;
 }
 
-export const useWalletState = create<WalletState>((set) => ({
+export const useWalletStore = create<WalletState>((set) => ({
     wallets: [],
-    activeWallet: null,
+    currentWallet: null,
     isLoading: false,
     error: null,
 
     fetchWallets: async () => {
+        const authState = useAuthStore.getState() as ReturnType<typeof useAuthStore.getState>;
+        const rawUserId = authState.user?.id; 
+
+        if (!rawUserId) {
+            set({ error: "Oturum açmış kullanıcı bulunamadı." });
+            return;
+        }
+
+        const userId = Number(rawUserId);
+
+        if (isNaN(userId)) {
+            set({ error: "Geçersiz kullanıcı ID formatı." });
+            return;
+        }
+
         set({ isLoading: true, error: null });
         try {
-            const data = await walletService.getUserWallets();
+            const data = await walletService.getUserWallets(userId);
             set({ wallets: data, isLoading: false });
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                set({ 
-                    error: err.response?.data?.message || "Cüzdanlar yüklenirken bir hata oluştu", 
-                    isLoading: false 
-                });
-            } else {
-                set({ error: "Beklenmeyen bir hata oluştu", isLoading: false });
-            }
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Cüzdanlar yüklenemedi.';
+            set({ error: errorMessage, isLoading: false });
         }
     },
 
-    selectWallet: async (walletId: number) => {
+    fetchWalletDetail: async (walletId: number) => {
         set({ isLoading: true, error: null });
         try {
             const data = await walletService.getWalletById(walletId);
-            set({ activeWallet: data, isLoading: false });
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                set({ 
-                    error: err.response?.data?.message || "Cüzdan detayları alınamadı", 
-                    isLoading: false 
-                });
-            } else {
-                set({ error: "Beklenmeyen bir hata oluştu", isLoading: false });
-            }
+            set({ currentWallet: data, isLoading: false });
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Cüzdan detayı alınamadı.';
+            set({ error: errorMessage, isLoading: false });
+        }
+    },
+
+    addWallet: async (walletData: { name: string; currency: string }) => {
+        const authState = useAuthStore.getState() as ReturnType<typeof useAuthStore.getState>;
+        const rawUserId = authState.user?.id; 
+
+        if (!rawUserId) return;
+        
+        const userId = Number(rawUserId);
+        if (isNaN(userId)) return;
+
+        set({ isLoading: true, error: null });
+        try {
+            const fullWalletData = { ...walletData, balance: 0 };
+            const newWallet = await walletService.createWallet(userId, fullWalletData);
+            
+            set((state) => ({ 
+                wallets: [...state.wallets, newWallet], 
+                isLoading: false 
+            }));
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Cüzdan oluşturulamadı.';
+            set({ error: errorMessage, isLoading: false });
         }
     }
 }));
