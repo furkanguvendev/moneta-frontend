@@ -1,9 +1,9 @@
 import axiosInstance from '../api/axiosInstance';
 
 export const walletService = {
-
-    getUserWallets: async () => {
-        const response = await axiosInstance.get('/wallets');
+    
+    getUserWallets: async (userId: number) => {
+        const response = await axiosInstance.get(`/wallets/${userId}`);
         return response.data; 
     },
 
@@ -12,8 +12,8 @@ export const walletService = {
         return response.data;
     },
 
-    createWallet: async (walletData: { name: string; currency: string }) => {
-        const response = await axiosInstance.post('/wallets', walletData);
+    createWallet: async (userId: number, walletData: { name: string; currency: string }) => {
+        const response = await axiosInstance.post(`/wallets/user/${userId}`, walletData);
         return response.data;
     }
 };
