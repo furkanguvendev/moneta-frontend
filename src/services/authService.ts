@@ -1,26 +1,31 @@
 import axiosInstance from '../api/axiosInstance';
 
-interface LoginData {
+export interface LoginData {
     email: string;
-    password?: string;
+    password: string;
 }
 
-interface RegisterData {
+export interface RegisterData {
     userName: string;
     email: string;
-    password?: string;
+    password: string;
+}
+
+export interface LoginResponse {
+    username: string;
+    email: string;
+    token: string;
+    message: string;
 }
 
 export const authService = {
-
-    login: async (credentials: LoginData) => {
+    login: async (credentials: LoginData): Promise<LoginResponse> => {
         const response = await axiosInstance.post('/auth/login', credentials);
-        return response.data; // LoginResponse (token, email, name)
+        return response.data;
     },
-
 
     register: async (userData: RegisterData) => {
         const response = await axiosInstance.post('/auth/register', userData);
-        return response.data; // AuthResponse
+        return response.data;
     }
 };

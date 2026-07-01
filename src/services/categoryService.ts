@@ -2,14 +2,12 @@ import axiosInstance from '../api/axiosInstance';
 
 export interface CategoryRequest {
     name: string;
-    icon?: string;
-    color?: string;
+    isMandatory: boolean;
 }
 
 export const categoryService = {
-
-    getAllCategories: async () => {
-        const response = await axiosInstance.get('/categories');
+    getAllCategories: async (userId: number) => {
+        const response = await axiosInstance.get(`/categories/user/${userId}`);
         return response.data;
     },
 
@@ -18,12 +16,13 @@ export const categoryService = {
         return response.data;
     },
 
-    createCategory: async (request: CategoryRequest) => {
-        const response = await axiosInstance.post('/categories', request);
+    createCategory: async (userId: number, request: CategoryRequest) => {
+        const response = await axiosInstance.post(`/categories/user/${userId}`, request);
         return response.data;
     },
 
     deleteCategory: async (id: number) => {
-        await axiosInstance.delete(`/categories/${id}`);
+        const response = await axiosInstance.delete(`/categories/${id}`);
+        return response.data;
     }
 };
