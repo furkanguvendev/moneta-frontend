@@ -5,11 +5,10 @@ export interface TransactionRequest {
     categoryId: number;
     amount: number;
     description: string;
-    type: 'INCOME' | 'EXPENSE';
+    transactionType: 'INCOME' | 'EXPENSE';
 }
 
 export const transactionService = {
-
     getTransactionById: async (id: number) => {
         const response = await axiosInstance.get(`/transactions/${id}`);
         return response.data;
@@ -31,6 +30,7 @@ export const transactionService = {
     },
 
     deleteTransaction: async (id: number) => {
-        await axiosInstance.delete(`/transactions/${id}`);
+        const response = await axiosInstance.delete(`/transactions/${id}`);
+        return response.data;
     }
 };

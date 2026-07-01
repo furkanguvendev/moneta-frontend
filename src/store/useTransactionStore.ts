@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import axios from "axios";
 import { transactionService } from "../services/transactionService";
 import type { TransactionRequest } from "../services/transactionService";
 
@@ -7,9 +6,9 @@ interface Transaction {
     id: number;
     amount: number;
     description: string;
-    type: string;
+    transactionType: 'INCOME' | 'EXPENSE' | string;
     categoryName: string;
-    createdAt: string;
+    transactionDate: string;
 }
 
 interface TransactionStatistics {
@@ -29,7 +28,7 @@ interface TransactionStore {
     deleteTransaction: (id: number, walletId: number) => Promise<void>;
 }
 
-export const useTransactionStore = create<TransactionStore>((set) => ({
+export const useTransactionStore = create<TransactionStore>((set, get) => ({
     transactions: [],
     statistics: [],
     isLoading: false,
@@ -40,12 +39,9 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         try {
             const data = await transactionService.getTransactionsByWallet(walletId);
             set({ transactions: data, isLoading: false });
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                set({ error: err.response?.data?.message || "İşlemler yüklenemedi", isLoading: false });
-            } else {
-                set({ error: "Beklenmeyen bir hata oluştu", isLoading: false });
-            }
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "İşlemler yüklenemedi";
+            set({ error: errorMessage, isLoading: false });
         }
     },
 
@@ -53,7 +49,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         try {
             const data = await transactionService.getWalletStatistics(walletId);
             set({ statistics: data });
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("İstatistikler çekilemedi", err);
         }
     },
@@ -62,21 +58,20 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         set({ isLoading: true, error: null });
         try {
             await transactionService.addTransaction(request);
-            await useTransactionStore.getState().fetchTransactions(request.walletId);
-            await useTransactionStore.getState().fetchStatistics(request.walletId);
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                set({ error: err.response?.data?.message || "İşlem eklenemedi", isLoading: false });
-            }
+            await get().fetchTransactions(request.walletId);
+            await get().fetchStatistics(request.walletId);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "İşlem eklenemedi";
+            set({ error: errorMessage, isLoading: false });
         }
     },
 
     deleteTransaction: async (id, walletId) => {
         try {
             await transactionService.deleteTransaction(id);
-            await useTransactionStore.getState().fetchTransactions(walletId);
-            await useTransactionStore.getState().fetchStatistics(walletId);
-        } catch (err) {
+            await get().fetchTransactions(walletId);
+            await get().fetchStatistics(walletId);
+        } catch (err: unknown) {
             console.error("İşlem silinemedi", err);
         }
     }
