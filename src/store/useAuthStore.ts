@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authService, LoginData } from "../services/authService";
+import { authService, type LoginData, type RegisterData } from "../services/authService";
 
 interface User {
-    id: number; // Diğer store'ların doğru çalışabilmesi için sayısal ID zorunlu
+    id: number;
     userName: string;
     email: string;
 }
@@ -15,6 +15,7 @@ interface AuthState {
     isLoading: boolean;
     error: string | null;
     loginUser: (credentials: LoginData, fallbackUserId: number) => Promise<void>;
+    registerUser: (userData: RegisterData, successCallback: () => void) => Promise<void>;
     logout: () => void;
     clearAuthError: () => void;
 }
@@ -27,12 +28,11 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
-
+                                                                          
             loginUser: async (credentials, fallbackUserId) => {
                 set({ isLoading: true, error: null });
                 try {
                     const data = await authService.login(credentials);
-                
                     set({
                         token: data.token,
                         isAuthenticated: true,
@@ -45,6 +45,18 @@ export const useAuthStore = create<AuthState>()(
                     });
                 } catch (err: unknown) {
                     const errorMessage = err instanceof Error ? err.message : "Giriş yapılamadı. Bilgilerinizi kontrol edin.";
+                    set({ error: errorMessage, isLoading: false });
+                }
+            },
+
+            registerUser: async (userData, successCallback) => {
+                set({ isLoading: true, error: null });
+                try {
+                    await authService.register(userData);
+                    set({ isLoading: false });
+                    successCallback(); 
+                } catch (err: unknown) {
+                    const errorMessage = err instanceof Error ? err.message : "Kayıt işlemi başarısız oldu.";
                     set({ error: errorMessage, isLoading: false });
                 }
             },

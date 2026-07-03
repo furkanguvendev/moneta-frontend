@@ -1,20 +1,30 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import budget from "../assets/budget.jpeg";
 import { FaLinkedin, FaBriefcase, FaInfoCircle } from "react-icons/fa";
-
-type login = {
-  loginName: string;
-  password: string;
-};
+import { useAuthStore } from "../store/useAuthStore";
+import { type LoginData } from "../services/authService";
 
 export const Login = () => {
+  const navigate = useNavigate();
+  const { loginUser, isLoading, error, clearAuthError } = useAuthStore();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<login>();
+  } = useForm<LoginData>();
 
-  const onSubmit: SubmitHandler<login> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<LoginData> = async (data) => {
+    clearAuthError();
+    
+    const fallbackTestId = 1; 
+    await loginUser(data, fallbackTestId);
+    
+    if (useAuthStore.getState().isAuthenticated) {
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <div className="login-container">
@@ -35,15 +45,22 @@ export const Login = () => {
             <p className="text-sm text-white/60 mt-1">Sign in to stay connected.</p>
           </div>
 
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-center">
+              <span className="text-xs text-red-400 font-medium">{error}</span>
+            </div>
+          )}
+
           <div className="login-input-group">
             <label className="text-xs font-bold uppercase tracking-wider text-white/80">Email</label>
             <input 
               type="email" 
               placeholder="example@moneta.com"
-              {...register("loginName", { required: true })} 
+              {...register("email", { required: "This field is required" })} 
               className="login-input"
+              disabled={isLoading}
             />
-            {errors.loginName && <span className="text-xs text-red-400 font-medium mt-0.5">This field is required</span>}
+            {errors.email && <span className="text-xs text-red-400 font-medium mt-0.5">{errors.email.message}</span>}
           </div>
 
           <div className="login-input-group">
@@ -51,10 +68,11 @@ export const Login = () => {
             <input 
               type="password" 
               placeholder="••••••••"
-              {...register("password", { required: true })} 
+              {...register("password", { required: "This field is required" })} 
               className="login-input"
+              disabled={isLoading}
             />
-            {errors.password && <span className="text-xs text-red-400 font-medium mt-0.5">This field is required</span>}
+            {errors.password && <span className="text-xs text-red-400 font-medium mt-0.5">{errors.password.message}</span>}
           </div>
 
           <div className="w-full flex justify-between items-center text-xs text-white/70 pt-1">
@@ -65,8 +83,12 @@ export const Login = () => {
             <a href="/forgot-password" className="hover:underline font-semibold text-white/90">Forgot Password</a>
           </div>
 
-          <button type="submit" className="w-full block text-center mt-2 py-3.5 bg-white text-[#062419] hover:bg-white/90 font-bold text-sm rounded-xl transition-all duration-200 shadow-lg active:scale-[0.99] cursor-pointer">
-            Sign in
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="w-full block text-center mt-2 py-3.5 bg-white text-[#062419] hover:bg-white/90 font-bold text-sm rounded-xl transition-all duration-200 shadow-lg active:scale-[0.99] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Signing in..." : "Sign in"}
           </button> 
         </form>
 
