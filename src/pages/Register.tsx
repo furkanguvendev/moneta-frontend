@@ -1,6 +1,7 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import budget from "../assets/register-bg.jpg";
+import { useAuthStore } from "../store/useAuthStore";
 
 type RegisterFormInputs = {
   userName: string;
@@ -11,14 +12,30 @@ type RegisterFormInputs = {
 };
 
 export const Register = () => {
+  const navigate = useNavigate();
+  const { registerUser, isLoading, error, clearAuthError } = useAuthStore();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormInputs>();
 
-  const onSubmit: SubmitHandler<RegisterFormInputs> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<RegisterFormInputs> = async (data) => {
+    clearAuthError();
+
+    const requestData = {
+      userName: data.userName,
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.surname
+    };
+
+    await registerUser(requestData, () => {
+      alert("Kayıt işlemi başarıyla tamamlandı! Giriş sayfasına yönlendiriliyorsunuz.");
+      navigate("/login");
+    });
   };
 
   return (
@@ -32,6 +49,12 @@ export const Register = () => {
           <p className="text-sm text-white/60">Moneta ile finansal kontrolü eline al.</p>
         </div>
 
+        {error && (
+          <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl text-center">
+            <span className="text-xs text-red-400 font-medium">{error}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           
           <div className="flex flex-col lg:flex-row gap-5">
@@ -42,6 +65,7 @@ export const Register = () => {
                 type="text"
                 placeholder="John" 
                 className="auth-input"
+                disabled={isLoading}
               />
               {errors.firstName && <span className="auth-error">{errors.firstName.message}</span>}
             </div>
@@ -53,6 +77,7 @@ export const Register = () => {
                 type="text"
                 placeholder="Doe" 
                 className="auth-input"
+                disabled={isLoading}
               />
               {errors.surname && <span className="auth-error">{errors.surname.message}</span>}
             </div>
@@ -65,6 +90,7 @@ export const Register = () => {
               type="text"
               placeholder="johndoe99" 
               className="auth-input"
+              disabled={isLoading}
             />
             {errors.userName && <span className="auth-error">{errors.userName.message}</span>}
           </div>
@@ -79,6 +105,7 @@ export const Register = () => {
               type="email" 
               placeholder="john@example.com"
               className="auth-input"
+              disabled={isLoading}
             />
             {errors.email && <span className="auth-error">{errors.email.message}</span>}
           </div>
@@ -93,12 +120,13 @@ export const Register = () => {
               type="password"
               placeholder="••••••••" 
               className="auth-input"
+              disabled={isLoading}
             />
             {errors.password && <span className="auth-error">{errors.password.message}</span>}
           </div>
 
-          <button type="submit" className="auth-btn">
-            Hesap Oluştur
+          <button type="submit" disabled={isLoading} className="auth-btn disabled:opacity-50 disabled:cursor-not-allowed">
+            {isLoading ? "Hesap Oluşturuluyor..." : "Hesap Oluştur"}
           </button>
         </form>
 
