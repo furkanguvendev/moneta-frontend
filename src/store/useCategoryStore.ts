@@ -1,18 +1,11 @@
 import { create } from "zustand";
 import { categoryService } from "../services/categoryService";
-import type { CategoryRequest } from "../services/categoryService";
+import type { CategoryRequest, CategoryResponse } from "../services/categoryService";
 import { useAuthStore } from "./useAuthStore";
 
-interface Category {
-    id: number;
-    name: string;
-    isMandatory: boolean;
-    isDefault: boolean;
-}
-
 interface CategoryStore {
-    categories: Category[];
-    mandatoryCategories: Category[];
+    categories: CategoryResponse[];
+    mandatoryCategories: CategoryResponse[];
     isLoading: boolean;
     error: string | null;
     fetchCategories: () => Promise<void>;

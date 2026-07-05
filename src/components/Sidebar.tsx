@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -6,8 +7,12 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
   const handleLogout = () => {
-    console.log("bekle işim var");
+    logout();
+    navigate("/login");
   };
 
   return (

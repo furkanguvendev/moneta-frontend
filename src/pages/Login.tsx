@@ -17,9 +17,7 @@ export const Login = () => {
 
   const onSubmit: SubmitHandler<LoginData> = async (data) => {
     clearAuthError();
-    
-    const fallbackTestId = 1; 
-    await loginUser(data, fallbackTestId);
+    await loginUser(data);
     
     if (useAuthStore.getState().isAuthenticated) {
       navigate("/dashboard");
