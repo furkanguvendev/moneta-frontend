@@ -14,7 +14,7 @@ interface AuthState {
     isAuthenticated: boolean;
     isLoading: boolean;
     error: string | null;
-    loginUser: (credentials: LoginData, fallbackUserId: number) => Promise<void>;
+    loginUser: (credentials: LoginData) => Promise<void>;
     registerUser: (userData: RegisterData, successCallback: () => void) => Promise<void>;
     logout: () => void;
     clearAuthError: () => void;
@@ -28,8 +28,8 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
-                                                                          
-            loginUser: async (credentials, fallbackUserId) => {
+                                                                                                        
+            loginUser: async (credentials) => {
                 set({ isLoading: true, error: null });
                 try {
                     const data = await authService.login(credentials);
@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>()(
                         isAuthenticated: true,
                         isLoading: false,
                         user: {
-                            id: fallbackUserId, 
+                            id: data.id, 
                             userName: data.username,
                             email: data.email
                         }

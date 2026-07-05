@@ -1,18 +1,11 @@
 import { create } from 'zustand';
 import { walletService } from '../services/walletService';
+import type { WalletResponse } from '../services/walletService';
 import { useAuthStore } from './useAuthStore';
 
-export interface Wallet {
-    id: number;
-    name: string;
-    balance: number;
-    currency: string;
-    createdAt: string;
-}
-
 interface WalletState {
-    wallets: Wallet[];
-    currentWallet: Wallet | null;
+    wallets: WalletResponse[];
+    currentWallet: WalletResponse | null;
     isLoading: boolean;
     error: string | null;
     fetchWallets: () => Promise<void>;

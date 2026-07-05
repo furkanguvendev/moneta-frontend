@@ -1,25 +1,10 @@
 import { create } from "zustand";
 import { transactionService } from "../services/transactionService";
-import type { TransactionRequest } from "../services/transactionService";
-
-interface Transaction {
-    id: number;
-    amount: number;
-    description: string;
-    transactionType: 'INCOME' | 'EXPENSE' | string;
-    categoryName: string;
-    transactionDate: string;
-}
-
-interface TransactionStatistics {
-    categoryName: string;
-    totalAmount: number;
-    percentage?: number;
-}
+import type { TransactionRequest, TransactionResponse, TransactionStatisticsResponse } from "../services/transactionService";
 
 interface TransactionStore {
-    transactions: Transaction[];
-    statistics: TransactionStatistics[];
+    transactions: TransactionResponse[];
+    statistics: TransactionStatisticsResponse[];
     isLoading: boolean;
     error: string | null;
     fetchTransactions: (walletId: number) => Promise<void>;
