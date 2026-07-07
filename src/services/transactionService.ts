@@ -12,15 +12,17 @@ export interface TransactionResponse {
     id: number;
     amount: number;
     description: string;
-    transactionType: 'INCOME' | 'EXPENSE';
     categoryName: string;
-    transactionDate: string;
+    isMandatory: boolean;
+    walletName: string;
+    transactionType: 'INCOME' | 'EXPENSE';
+    transactionDate: string; 
 }
 
 export interface TransactionStatisticsResponse {
     categoryName: string;
     totalAmount: number;
-    percentage?: number;
+    percentage: number;
 }
 
 export const transactionService = {
