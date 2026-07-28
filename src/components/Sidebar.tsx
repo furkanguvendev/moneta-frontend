@@ -42,6 +42,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           <Link to="/dashboard" className="sidebar-link" onClick={onClose}>Dashboard</Link>
           <Link to="/Transactions" className="sidebar-link" onClick={onClose}>Transactions</Link>
           <Link to="/wallets" className="sidebar-link" onClick={onClose}>Wallets</Link>
+          <Link to="/investments" className="sidebar-link" onClick={onClose}>Yatırımlar</Link> {/* <-- EKLENDİ */}
           <Link to="/profile" className="sidebar-link" onClick={onClose}>Profile</Link>
         </nav>
       </div>
