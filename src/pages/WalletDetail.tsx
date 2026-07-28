@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useTransactionStore } from "../store/useTransactionStore";
+import { useInvestmentStore } from "../store/useInvestmentStore";
+import { useAuthStore } from "../store/useAuthStore";
 import { TransactionModal } from "../components/TransactionModal";
+import { InvestmentPage } from "../components/InvestmentPage";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { TransactionRequest } from "../services/transactionService";
 
@@ -18,19 +21,26 @@ export const WalletDetail = () => {
   const navigate = useNavigate();
   const walletId = Number(id);
 
+  const user = useAuthStore((state) => state.user);
+  const currentUserId = user?.id || 0;
+
   const { wallets, fetchWallets } = useWalletStore();
   const { transactions, isLoading, error, fetchTransactions, addTransaction, deleteTransaction } = useTransactionStore();
+  const { simulations, fetchSimulations } = useInvestmentStore();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
 
   useEffect(() => {
-    if (walletId) {
+    if (walletId && currentUserId) {
       fetchWallets();
       fetchTransactions(walletId);
+      fetchSimulations(currentUserId);
     }
-  }, [walletId, fetchWallets, fetchTransactions]);
+  }, [walletId, currentUserId, fetchWallets, fetchTransactions, fetchSimulations]);
 
   const wallet = wallets.find((w) => w.id === walletId);
+  const walletSimulations = simulations.filter((s) => s.walletId === walletId);
 
   const totalIncome = transactions
     .filter((t) => t.transactionType === "INCOME")
@@ -100,56 +110,102 @@ export const WalletDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Hesap Hareketleri</h2>
-          
-          {transactions.length === 0 ? (
-            <div className="card-premium border-dashed border-2 border-emerald-500/10 p-8 text-center min-h-[250px] flex flex-col items-center justify-center">
-              <p className="text-emerald-400/60 font-medium text-sm">Bu cüzdana ait henüz bir harcama veya gelir kaydı bulunmuyor.</p>
-              <p className="text-xs text-slate-600 mt-1">İşlem eklemek için sağ paneli kullanabilirsiniz.</p>
+        <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-3">
+            <div className="flex justify-between items-center px-1">
+              <h2 className="text-lg font-bold text-slate-200 tracking-wide">Aktif Yatırımlar</h2>
+              <span className="text-xs text-emerald-400 font-semibold">{walletSimulations.length} Yatırım</span>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {transactions.map((tx) => (
-                <div key={tx.id} className="group flex justify-between items-center p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-200">{tx.description || "Açıklama Belirtilmemiş"}</span>
-                      <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40">{tx.categoryName}</span>
-                      {tx.isMandatory && <span className="text-[9px] bg-rose-500/10 text-rose-400 px-1.5 py-0.5 rounded-md font-bold">Zorunlu</span>}
+
+            {walletSimulations.length === 0 ? (
+              <div className="p-4 rounded-2xl bg-[#04110d]/20 border border-emerald-950/30 text-xs text-slate-500">
+                Bu cüzdana bağlı henüz aktif bir yatırım simülasyonu yok.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {walletSimulations.map((sim) => (
+                  <div key={sim.id} className="p-4 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50 flex justify-between items-center">
+                    <div>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                        {sim.investmentType}
+                      </span>
+                      <div className="text-base font-black text-white mt-2">
+                        {sim.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency]}
+                      </div>
+                      <span className="text-[10px] text-slate-500 block mt-0.5">
+                        Giriş: {sim.entryValue}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-slate-500 block">{new Date(tx.transactionDate).toLocaleDateString('tr-TR')}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency]}
-                    </span>
                     <button
-                      onClick={() => handleDeleteTransaction(tx.id)}
-                      className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
-                      title="İşlemi Sil"
+                      onClick={() => setIsInvestmentModalOpen(true)}
+                      className="px-3 py-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-xl transition cursor-pointer"
                     >
-                      ✕
+                      Yönet / Boz
                     </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Hesap Hareketleri</h2>
+            
+            {transactions.length === 0 ? (
+              <div className="card-premium border-dashed border-2 border-emerald-500/10 p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
+                <p className="text-emerald-400/60 font-medium text-sm">Bu cüzdana ait henüz bir harcama veya gelir kaydı bulunmuyor.</p>
+                <p className="text-xs text-slate-600 mt-1">İşlem eklemek için sağ paneli kullanabilirsiniz.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {transactions.map((tx) => (
+                  <div key={tx.id} className="group flex justify-between items-center p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-200">{tx.description || "Açıklama Belirtilmemiş"}</span>
+                        <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40">{tx.categoryName}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 block">{new Date(tx.transactionDate).toLocaleDateString('tr-TR')}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency]}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteTransaction(tx.id)}
+                        className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
+                        title="İşlemi Sil"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">İşlemler</h2>
-            <div className="card-premium bg-gradient-to-br from-[#0b3324]/20 to-transparent p-6 space-y-4 rounded-3xl border border-emerald-950/40">
+            <div className="card-premium bg-gradient-to-br from-[#0b3324]/20 to-transparent p-6 space-y-3 rounded-3xl border border-emerald-950/40">
               <p className="text-xs text-slate-400 leading-relaxed">
-                Bu cüzdana anlık olarak yeni gelir veya gider ekleyerek bakiye akışınızı dinamik olarak takip edin.
+                Bu cüzdana anlık olarak yeni gelir/gider ekleyin veya simüle edilmiş yatırım başlatın.
               </p>
+              
               <button 
                 onClick={() => setIsModalOpen(true)}
                 className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/10"
               >
                 + Yeni İşlem Ekle
+              </button>
+
+              <button 
+                onClick={() => setIsInvestmentModalOpen(true)}
+                className="w-full py-3 bg-emerald-950/50 hover:bg-emerald-900/40 text-emerald-400 border border-emerald-500/20 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+              >
+                📈 Yatırım Simülasyonu
               </button>
             </div>
           </div>
@@ -214,6 +270,20 @@ export const WalletDetail = () => {
         walletId={walletId}
         onSave={handleSaveTransaction}
       />
+
+      {isInvestmentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-4xl bg-[#03140f] border border-emerald-950/60 rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <button 
+              onClick={() => setIsInvestmentModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold p-2 cursor-pointer z-10"
+            >
+              ✕
+            </button>
+            <InvestmentPage initialWalletId={walletId} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

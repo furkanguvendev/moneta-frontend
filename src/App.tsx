@@ -8,10 +8,10 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import './App.css';
 import { WalletDetail } from "./pages/WalletDetail";
 import { MainLayout } from "./layouts/MainLayout";
+import { InvestmentPage } from "./components/InvestmentPage"; // <-- EKLENDİ
 
 const LandingGuard = () => {
   const skipLanding = localStorage.getItem("skipLanding") === "true";
-  
   if (skipLanding) {
     return <Navigate to="/login" replace />;
   }
@@ -44,6 +44,10 @@ const router = createBrowserRouter([
           {
             path: "/wallets/:id", 
             element: <WalletDetail />,
+          },
+          {
+            path: "/investments", // <-- EKLENDİ (Doğrudan Yatırım Sayfası)
+            element: <InvestmentPage />,
           },
           {
             path: "/profile", 
