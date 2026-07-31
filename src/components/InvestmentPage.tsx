@@ -14,7 +14,7 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
   const currentUserId = user?.id || 0;
 
   const { wallets, fetchWallets } = useWalletStore();
-  const { addTransaction, fetchTransactions } = useTransactionStore();
+  const { fetchTransactions } = useTransactionStore();
   const { simulations, isLoading, error, fetchSimulations, createSimulation, closeSimulation } =
     useInvestmentStore();
 
@@ -49,14 +49,6 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
     });
 
     if (success) {
-      await addTransaction({
-        walletId: activeWalletId,
-        amount: numericAmount,
-        description: `${investmentType} Yatırım Simülasyonu Başlatıldı`,
-        transactionType: 'EXPENSE',
-        categoryId: 1,
-      });
-
       setAmount('');
       setEntryValue('');
       
@@ -71,16 +63,6 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
     });
 
     if (success) {
-      const returnAmount = sim.amount; 
-
-      await addTransaction({
-        walletId: sim.walletId || activeWalletId,
-        amount: returnAmount,
-        description: `${sim.investmentType} Simülasyonu Kapatıldı`,
-        transactionType: 'INCOME',
-        categoryId: 1,
-      });
-
       setSelectedSimId(null);
       setCurrentEvValue('');
       
