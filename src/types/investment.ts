@@ -1,5 +1,7 @@
 export type InvestmentType = 'FAIZ' | 'DOLAR' | 'ALTIN' | 'BORSA';
 
+export type MaturityType = 'GUNLUK' | 'AYLIK' | 'YILLIK';
+
 export type SimulationStatus = 'ACTIVE' | 'CANCELLED' | 'COMPLETED';
 
 export interface InvestmentSimulation {
@@ -8,6 +10,7 @@ export interface InvestmentSimulation {
   walletId: number;
   amount: number;
   investmentType: InvestmentType;
+  maturityType?: MaturityType;
   entryValue: number;
   startDate: string;
   endDate: string;
@@ -18,6 +21,7 @@ export interface SimulationRequest {
   walletId: number;
   amount: number;
   investmentType: InvestmentType;
+  maturityType?: MaturityType;
   entryValue: number;
 }
 

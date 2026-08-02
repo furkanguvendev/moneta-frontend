@@ -11,6 +11,7 @@ interface WalletState {
     fetchWallets: () => Promise<void>;
     fetchWalletDetail: (walletId: number) => Promise<void>;
     addWallet: (walletData: { name: string; currency: string }) => Promise<void>;
+    deleteWallet: (walletId: number) => Promise<void>;
 }
 
 export const useWalletStore = create<WalletState>((set) => ({
@@ -76,6 +77,20 @@ export const useWalletStore = create<WalletState>((set) => ({
             }));
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Cüzdan oluşturulamadı.';
+            set({ error: errorMessage, isLoading: false });
+        }
+    },
+
+    deleteWallet: async (walletId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+            await walletService.deleteWallet(walletId);
+            set((state) => ({
+                wallets: state.wallets.filter((w) => w.id !== walletId),
+                isLoading: false
+            }));
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Cüzdan silinemedi.';
             set({ error: errorMessage, isLoading: false });
         }
     }
