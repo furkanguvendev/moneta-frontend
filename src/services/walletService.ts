@@ -28,5 +28,9 @@ export const walletService = {
     createWallet: async (userId: number, walletData: WalletRequest): Promise<WalletResponse> => {
         const response = await axiosInstance.post(`/wallets/user/${userId}`, walletData);
         return response.data;
+    },
+
+    deleteWallet: async (walletId: number): Promise<void> => {
+        await axiosInstance.delete(`/wallets/${walletId}`);
     }
 };

@@ -3,7 +3,7 @@ import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useWalletStore } from '../store/useWalletStore';
 import { useTransactionStore } from '../store/useTransactionStore';
 import { useAuthStore } from '../store/useAuthStore';
-import type { InvestmentType, InvestmentSimulation } from '../types/investment'; 
+import type { InvestmentType, MaturityType, InvestmentSimulation } from '../types/investment'; 
 
 interface InvestmentPageProps {
   initialWalletId?: number;
@@ -21,6 +21,7 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
   const [selectedWalletId, setSelectedWalletId] = useState<number>(initialWalletId || 0);
   const [amount, setAmount] = useState<string>('');
   const [investmentType, setInvestmentType] = useState<InvestmentType>('FAIZ');
+  const [maturityType, setMaturityType] = useState<MaturityType>('AYLIK');
   const [entryValue, setEntryValue] = useState<string>('');
 
   const [selectedSimId, setSelectedSimId] = useState<number | null>(null);
@@ -45,6 +46,7 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
       walletId: activeWalletId,
       amount: numericAmount,
       investmentType,
+      maturityType: investmentType === 'FAIZ' ? maturityType : undefined,
       entryValue: parseFloat(entryValue),
     });
 
@@ -121,6 +123,21 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
               </select>
             </div>
 
+            {investmentType === 'FAIZ' && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Faiz Vadesi</label>
+                <select
+                  value={maturityType}
+                  onChange={(e) => setMaturityType(e.target.value as MaturityType)}
+                  className="w-full bg-[#04110d] border border-emerald-950/60 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
+                >
+                  <option value="GUNLUK">Günlük Vade</option>
+                  <option value="AYLIK">Aylık Vade (30 Gün)</option>
+                  <option value="YILLIK">Yıllık Vade (365 Gün)</option>
+                </select>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">Yatırılacak Tutar (TL)</label>
               <input
@@ -178,9 +195,16 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
               >
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
-                      {sim.investmentType}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                        {sim.investmentType}
+                      </span>
+                      {sim.maturityType && (
+                        <span className="text-[10px] font-semibold text-slate-400 bg-slate-800/60 px-1.5 py-0.5 rounded border border-slate-700/50">
+                          {sim.maturityType}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[10px] text-slate-500">
                       {new Date(sim.startDate).toLocaleDateString('tr-TR')}
                     </span>
@@ -192,8 +216,18 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
                       <strong className="text-slate-200">{sim.amount.toLocaleString('tr-TR')} TL</strong>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">Giriş Değeri:</span>
-                      <strong className="text-slate-200">{sim.entryValue}</strong>
+                      <span className="text-slate-500">
+                        {sim.investmentType === 'FAIZ' ? 'Faiz Oranı:' : 'Giriş Değeri:'}
+                      </span>
+                      <strong className="text-slate-200">
+                        {sim.entryValue} {sim.investmentType === 'FAIZ' && '%'}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Bitiş Tarihi:</span>
+                      <strong className="text-slate-400">
+                        {new Date(sim.endDate).toLocaleDateString('tr-TR')}
+                      </strong>
                     </div>
                   </div>
                 </div>
