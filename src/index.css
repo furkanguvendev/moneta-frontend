@@ -178,32 +178,32 @@
 /* Profile */
 
 @utility profile-container {
-  @apply space-y-8 p-4 sm:p-6 lg:p-10 text-slate-100 min-h-screen;
+  @apply space-y-8 p-4 sm:p-6 lg:p-8 text-slate-100 w-full min-h-full;
 }
 @utility profile-header {
-  @apply pb-6 border-b border-emerald-950/40;
+  @apply pb-6 border-b border-emerald-950/40 w-full;
 }
 @utility profile-main-layout {
-  @apply flex flex-col lg:flex-row gap-6 items-start w-full overflow-hidden;
+  @apply grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full;
 }
 @utility profile-info-card {
-  @apply w-full lg:w-[32%] flex flex-col items-center text-center p-8 sm:p-10 bg-zinc-950/40 rounded-3xl border border-emerald-950/40 backdrop-blur-md shadow-2xl shadow-black/30 shrink;
+  @apply lg:col-span-4 w-full flex flex-col items-center text-center p-8 bg-emerald-950/20 rounded-3xl border border-emerald-800/30 backdrop-blur-md shadow-2xl space-y-6 relative overflow-hidden;
 }
 @utility profile-avatar {
-  @apply w-28 h-28 rounded-full border-2 border-emerald-500/30 object-cover shadow-xl shadow-emerald-950/60 mb-5;
+  @apply w-28 h-28 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black text-3xl shadow-lg shadow-emerald-500/10 transition-transform hover:scale-105 leading-none;
 }
 @utility profile-email-section {
-  @apply w-full mt-8 pt-6 border-t border-emerald-950/40 text-left space-y-1.5;
+  @apply w-full pt-6 border-t border-emerald-900/40 text-left space-y-1.5 bg-emerald-950/30 p-4 rounded-2xl border border-emerald-900/20;
 }
 @utility profile-wallets-section {
-  @apply w-full lg:flex-1 space-y-6;
+  @apply lg:col-span-8 w-full space-y-6;
 }
 @utility profile-grid-structure {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-4 w-full;
+  @apply grid grid-cols-1 md:grid-cols-2 gap-5 w-full;
 }
 @utility profile-mini-wallet-card {
-  @apply flex flex-col justify-between p-5 bg-zinc-950/40 rounded-2xl border border-emerald-950/30 hover:border-emerald-500/20 transition-all duration-300 shadow-xl shadow-black/10 min-h-[140px] w-full overflow-hidden;
+  @apply flex flex-col justify-between p-6 bg-gradient-to-br from-emerald-950/30 to-emerald-950/10 rounded-2xl border border-emerald-800/30 hover:border-emerald-500/40 transition-all duration-300 shadow-xl min-h-[160px] w-full group;
 }
 @utility profile-delete-btn {
-  @apply p-2 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/30 text-red-400 rounded-xl transition-all duration-200 cursor-pointer;
+  @apply p-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95;
 }
