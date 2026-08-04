@@ -3,42 +3,59 @@
 /* Login Page */
 
 @utility login-container { 
-  @apply flex flex-col lg:flex-row w-full min-h-screen justify-between items-center text-white; }
+  @apply flex flex-col lg:flex-row w-full min-h-screen justify-between items-center text-white; 
+}
 @utility login-info-side { 
-  @apply flex flex-col items-center justify-center gap-4 bg-emerald-600 w-full lg:w-1/2 lg:h-screen p-8 text-center; }
+  @apply flex flex-col items-center justify-center gap-4 bg-emerald-600 w-full lg:w-1/2 lg:h-screen p-8 text-center; 
+}
 @utility login-form-side { 
-  @apply flex flex-col items-center justify-center bg-[#062419] w-full lg:w-1/2 lg:h-screen p-6 md:p-12; }
+  @apply flex flex-col items-center justify-center bg-[#062419] w-full lg:w-1/2 lg:h-screen p-6 md:p-12; 
+}
 @utility login-card-form { 
-  @apply flex flex-col items-center gap-y-5 w-full max-w-sm bg-white/5 border border-white/10 p-8 rounded-3xl shadow-xl; }
+  @apply flex flex-col items-center gap-y-5 w-full max-w-sm bg-white/5 border border-white/10 p-8 rounded-3xl shadow-xl; 
+}
 @utility login-input-group { 
-  @apply flex flex-col items-start w-full gap-y-1.5; }
+  @apply flex flex-col items-start w-full gap-y-1.5; 
+}
 @utility login-input { 
-  @apply w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:bg-white/15 focus:border-white/40 focus:outline-none transition-all duration-200; }
+  @apply w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:bg-white/15 focus:border-white/40 focus:outline-none transition-all duration-200; 
+}
 @utility login-social-btn { 
-  @apply w-11 h-11 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 rounded-xl transition-all duration-200 flex items-center justify-center text-white; }
+  @apply w-11 h-11 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 rounded-xl transition-all duration-200 flex items-center justify-center text-white; 
+}
 
 /* Landing Page */
 
 @utility landing-container { 
-  @apply min-h-screen bg-[#062419] text-white font-sans antialiased overflow-x-hidden; }
+  @apply min-h-screen bg-[#062419] text-white font-sans antialiased overflow-x-hidden; 
+}
 @utility landing-header { 
-  @apply sticky top-0 z-50 w-full flex items-center justify-between px-6 py-6 bg-[#062419]/90 backdrop-blur-md border-b border-white/10 lg:px-24; }
+  @apply sticky top-0 z-50 w-full flex items-center justify-between px-6 py-6 bg-[#062419]/90 backdrop-blur-md border-b border-white/10 lg:px-24; 
+}
 @utility landing-nav { 
-  @apply hidden lg:flex items-center gap-10 text-sm font-medium text-white/60; }
+  @apply hidden lg:flex items-center gap-10 text-sm font-medium text-white/60; 
+}
 @utility landing-main { 
-  @apply w-full flex flex-col items-center gap-y-24 lg:gap-y-40 pb-36; }
+  @apply w-full flex flex-col items-center gap-y-24 lg:gap-y-40 pb-36; 
+}
 @utility landing-section-hero { 
-  @apply w-full min-h-[calc(100vh-88px)] flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24 px-6 py-12 lg:px-24 max-w-7xl; }
+  @apply w-full min-h-[calc(100vh-88px)] flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24 px-6 py-12 lg:px-24 max-w-7xl; 
+}
 @utility landing-section-standard { 
-  @apply flex flex-col items-center w-full px-6 py-20 lg:py-32 max-w-7xl border-t border-white/10 scroll-mt-24; }
+  @apply flex flex-col items-center w-full px-6 py-20 lg:py-32 max-w-7xl border-t border-white/10 scroll-mt-24; 
+}
 @utility landing-section-bg { 
-  @apply w-full px-6 py-20 lg:py-36 bg-white/5 border-y border-white/10 lg:px-24 flex justify-center scroll-mt-24; }
+  @apply w-full px-6 py-20 lg:py-36 bg-white/5 border-y border-white/10 lg:px-24 flex justify-center scroll-mt-24; 
+}
 @utility landing-card { 
-  @apply p-8 lg:p-10 bg-white/5 border border-white/10 rounded-2xl flex flex-col hover:border-emerald-600/50 transition-all duration-300 shadow-xl; }
+  @apply p-8 lg:p-10 bg-white/5 border border-white/10 rounded-2xl flex flex-col hover:border-emerald-600/50 transition-all duration-300 shadow-xl; 
+}
 @utility landing-card-icon-wrapper { 
-  @apply w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0 mb-6; }
+  @apply w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0 mb-6; 
+}
 @utility landing-btn-primary { 
-  @apply w-full lg:w-auto px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 text-center cursor-pointer; }
+  @apply w-full lg:w-auto px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 text-center cursor-pointer; 
+}
 
 @layer utilities {
   .reveal-section {
@@ -86,6 +103,8 @@
   }
 }
 
+/* Layout & Dashboard & Wallet Detail */
+
 @layer components {
   .layout-container {
     @apply min-h-screen bg-[#062419] text-slate-100 font-sans flex flex-col lg:flex-row;
@@ -115,7 +134,6 @@
     @apply flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all duration-200 mt-auto text-left;
   }
 
-  /* Dashboard */
   .card-premium {
     @apply bg-[#0b3324]/40 border border-emerald-500/10 rounded-2xl p-5 lg:p-6 shadow-lg shadow-black/20 backdrop-blur-sm transition-all duration-300;
   }
@@ -124,7 +142,6 @@
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
   }
 
-  /* WalletDetail */
   .wallets-header-border {
     @apply border-b border-emerald-950/40 pb-6;
   }
@@ -169,13 +186,12 @@
     @apply bg-rose-500/10 text-rose-400 border border-rose-500/10 text-xs font-black p-2 rounded-lg;
   }
 
-  /* TransactionModal */
   .form-input-dark {
     @apply w-full bg-zinc-950/40 border border-emerald-950/40 rounded-xl px-4 py-2.5 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500/30;
   }
 }
 
-/* Profile */
+/* Profile Page */
 
 @utility profile-container {
   @apply space-y-8 p-4 sm:p-6 lg:p-8 text-slate-100 w-full min-h-full;
@@ -202,7 +218,7 @@
   @apply grid grid-cols-1 md:grid-cols-2 gap-5 w-full;
 }
 @utility profile-mini-wallet-card {
-  @apply flex flex-col justify-between p-6 bg-gradient-to-br from-emerald-950/30 to-emerald-950/10 rounded-2xl border border-emerald-800/30 hover:border-emerald-500/40 transition-all duration-300 shadow-xl min-h-[160px] w-full group;
+  @apply flex flex-col justify-between p-6 bg-gradient-to-br from-emerald-950/30 to-emerald-950/10 rounded-2xl border border-emerald-800/30 hover:border-emerald-500/40 transition-all duration-300 shadow-xl min-h-[160px] w-full;
 }
 @utility profile-delete-btn {
   @apply p-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95;
