@@ -12,6 +12,7 @@ export interface WalletResponse {
     balance: number;
     currency: string;
     ownerName: string;
+    createdAt?: string;
 }
 
 export const walletService = {
