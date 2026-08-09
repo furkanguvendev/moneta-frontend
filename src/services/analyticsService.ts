@@ -10,4 +10,9 @@ export const analyticsService = {
     const response = await axiosInstance.get(`/analytics/user/${userId}/monthly-summary`);
     return response.data;
   },
+
+  getWalletMonthlySummary: async (walletId: number): Promise<MonthlySummaryResponse> => {
+    const response = await axiosInstance.get<MonthlySummaryResponse>(`/analytics/wallet/${walletId}/monthly-summary`);
+    return response.data;
+  },
 };
