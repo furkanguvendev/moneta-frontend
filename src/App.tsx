@@ -7,8 +7,9 @@ import { Profile } from "./pages/Profile";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import './App.css';
 import { WalletDetail } from "./pages/WalletDetail";
+import { WalletMonthlyDetail } from "./pages/WalletMonthlyDetail"; // <-- EKLENDİ
 import { MainLayout } from "./layouts/MainLayout";
-import { InvestmentPage } from "./components/InvestmentPage"; // <-- EKLENDİ
+import { InvestmentPage } from "./components/InvestmentPage";
 
 const LandingGuard = () => {
   const skipLanding = localStorage.getItem("skipLanding") === "true";
@@ -46,7 +47,11 @@ const router = createBrowserRouter([
             element: <WalletDetail />,
           },
           {
-            path: "/investments", // <-- EKLENDİ (Doğrudan Yatırım Sayfası)
+            path: "/wallets/:id/month/:year/:month",
+            element: <WalletMonthlyDetail />,
+          },
+          {
+            path: "/investments",
             element: <InvestmentPage />,
           },
           {

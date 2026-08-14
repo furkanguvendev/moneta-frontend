@@ -4,8 +4,10 @@ import { useWalletStore } from "../store/useWalletStore";
 import { useTransactionStore } from "../store/useTransactionStore";
 import { useInvestmentStore } from "../store/useInvestmentStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useAnalyticsStore } from "../store/useAnalyticsStore";
 import { TransactionModal } from "../components/TransactionModal";
 import { InvestmentPage } from "../components/InvestmentPage";
+import { MonthlyCard } from "../components/MonthlyCard";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { TransactionRequest } from "../services/transactionService";
 
@@ -28,6 +30,9 @@ export const WalletDetail = () => {
   const { transactions, isLoading, error, fetchTransactions, addTransaction, deleteTransaction } = useTransactionStore();
   const { simulations, fetchSimulations } = useInvestmentStore();
   
+  // Analytics Store
+  const { monthlyBreakdownList, fetchWalletMonthlyBreakdown } = useAnalyticsStore();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
 
@@ -36,8 +41,9 @@ export const WalletDetail = () => {
       fetchWallets();
       fetchTransactions(walletId);
       fetchSimulations(currentUserId);
+      fetchWalletMonthlyBreakdown(walletId);
     }
-  }, [walletId, currentUserId, fetchWallets, fetchTransactions, fetchSimulations]);
+  }, [walletId, currentUserId, fetchWallets, fetchTransactions, fetchSimulations, fetchWalletMonthlyBreakdown]);
 
   const wallet = wallets.find((w) => w.id === walletId);
   const walletSimulations = simulations.filter((s) => s.walletId === walletId);
@@ -60,12 +66,14 @@ export const WalletDetail = () => {
   const handleSaveTransaction = async (data: TransactionRequest) => {
     await addTransaction(data);
     fetchWallets(); 
+    fetchWalletMonthlyBreakdown(walletId);
   };
 
   const handleDeleteTransaction = async (transactionId: number) => {
     if (window.confirm("Bu işlemi silmek istediğinize emin misiniz?")) {
       await deleteTransaction(transactionId, walletId);
       fetchWallets();
+      fetchWalletMonthlyBreakdown(walletId);
     }
   };
 
@@ -83,7 +91,10 @@ export const WalletDetail = () => {
         <span className="text-xs text-red-400 font-medium block mb-4">
           {error || "Cüzdan bulunamadı veya bu cüzdana erişim yetkiniz yok!"}
         </span>
-        <button onClick={() => navigate("/dashboard")} className="px-4 py-2 bg-white/10 text-white rounded-xl text-xs font-bold cursor-pointer hover:bg-white/20 transition-all">
+        <button 
+          onClick={() => navigate("/dashboard")} 
+          className="px-4 py-2 bg-white/10 text-white rounded-xl text-xs font-bold cursor-pointer hover:bg-white/20 transition-all"
+        >
           Dashboard'a Dön
         </button>
       </div>
@@ -92,9 +103,13 @@ export const WalletDetail = () => {
 
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-emerald-950/40 pb-6">
         <div>
-          <button onClick={() => navigate("/dashboard")} className="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition-colors mb-2 block cursor-pointer">
+          <button 
+            onClick={() => navigate("/dashboard")} 
+            className="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition-colors mb-2 block cursor-pointer"
+          >
             ← Hesaplarıma Geri Dön
           </button>
           <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">{wallet.name}</h1>
@@ -110,7 +125,10 @@ export const WalletDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sol Kolon */}
         <div className="lg:col-span-2 space-y-6">
+          
+          {/* Aktif Yatırımlar */}
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
               <h2 className="text-lg font-bold text-slate-200 tracking-wide">Aktif Yatırımlar</h2>
@@ -148,8 +166,32 @@ export const WalletDetail = () => {
             )}
           </div>
 
+          <div className="space-y-3">
+            <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Aylık Bütçe Dökümü</h2>
+            
+            {monthlyBreakdownList.length === 0 ? (
+              <div className="p-4 rounded-2xl bg-[#04110d]/20 border border-emerald-950/30 text-xs text-slate-500">
+                Aylık özet verisi bulunamadı.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {monthlyBreakdownList.map((item, idx) => (
+                  <MonthlyCard
+                    key={idx}
+                    year={item.year}
+                    month={item.month}
+                    totalIncome={item.totalIncome}
+                    totalExpense={item.totalExpense}
+                    currencySymbol={currencySymbols[wallet.currency] || wallet.currency}
+                    onClick={() => navigate(`/wallets/${walletId}/month/${item.year}/${item.month}`)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Hesap Hareketleri</h2>
+            <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Son Hesap Hareketleri</h2>
             
             {transactions.length === 0 ? (
               <div className="card-premium border-dashed border-2 border-emerald-500/10 p-8 text-center min-h-[200px] flex flex-col items-center justify-center">

@@ -1,20 +1,23 @@
 import { create } from 'zustand';
 import { analyticsService } from '../services/analyticsService';
-import type { MonthlySummaryResponse } from '../services/analyticsService';
+import type { MonthlySummaryResponse, MonthlyBreakdownResponse } from '../services/analyticsService';
 import { useAuthStore } from './useAuthStore';
 
 interface AnalyticsState {
   monthlySummary: MonthlySummaryResponse | null;
   walletMonthlySummary: MonthlySummaryResponse | null;
+  monthlyBreakdownList: MonthlyBreakdownResponse[];
   isLoading: boolean;
   error: string | null;
   fetchMonthlySummary: () => Promise<void>;
   fetchWalletMonthlySummary: (walletId: number) => Promise<void>;
+  fetchWalletMonthlyBreakdown: (walletId: number) => Promise<void>;
 }
 
 export const useAnalyticsStore = create<AnalyticsState>((set) => ({
   monthlySummary: null,
   walletMonthlySummary: null,
+  monthlyBreakdownList: [],
   isLoading: false,
   error: null,
 
@@ -55,6 +58,22 @@ export const useAnalyticsStore = create<AnalyticsState>((set) => ({
       set({ walletMonthlySummary: data, isLoading: false });
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Cüzdan aylık özeti alınamadı.';
+      set({ error: errorMessage, isLoading: false });
+    }
+  },
+
+  fetchWalletMonthlyBreakdown: async (walletId: number) => {
+    if (!walletId || isNaN(walletId)) {
+      set({ error: "Geçersiz cüzdan ID formatı." });
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+    try {
+      const data = await analyticsService.getWalletMonthlyBreakdown(walletId);
+      set({ monthlyBreakdownList: data, isLoading: false });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Cüzdan aylık detay dökümü alınamadı.';
       set({ error: errorMessage, isLoading: false });
     }
   }
