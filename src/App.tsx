@@ -4,12 +4,12 @@ import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Landing } from "./pages/Landing";
 import { Profile } from "./pages/Profile"; 
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import './App.css';
+import { ProtectedRoute } from "./layouts/ProtectedRoute";
 import { WalletDetail } from "./pages/WalletDetail";
-import { WalletMonthlyDetail } from "./pages/WalletMonthlyDetail"; // <-- EKLENDİ
+import { WalletMonthlyDetail } from "./pages/WalletMonthlyDetail";
 import { MainLayout } from "./layouts/MainLayout";
-import { InvestmentPage } from "./components/InvestmentPage";
+import { InvestmentPage } from "./pages/InvestmentPage";
+import './App.css';
 
 const LandingGuard = () => {
   const skipLanding = localStorage.getItem("skipLanding") === "true";

@@ -1,6 +1,41 @@
 @import "tailwindcss";
 
-/* Login Page */
+/* Global Scrollbar & Utility Customizations */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #03140e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #064e3b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+.recharts-default-tooltip {
+  background-color: #03140f !important;
+  border-color: #064e3b !important;
+  border-radius: 12px !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Login Page Utilities */
 
 @utility login-container { 
   @apply flex flex-col lg:flex-row w-full min-h-screen justify-between items-center text-white; 
@@ -24,7 +59,7 @@
   @apply w-11 h-11 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 rounded-xl transition-all duration-200 flex items-center justify-center text-white; 
 }
 
-/* Landing Page */
+/* Landing Page Utilities */
 
 @utility landing-container { 
   @apply min-h-screen bg-[#062419] text-white font-sans antialiased overflow-x-hidden; 
@@ -71,7 +106,7 @@
   }
 }
 
-/* Register Page */
+/* Register Page Components */
 
 @layer components {
   .auth-container {
@@ -103,7 +138,7 @@
   }
 }
 
-/* Layout & Dashboard & Wallet Detail */
+/* Layout, Dashboard & Wallet Components */
 
 @layer components {
   .layout-container {
@@ -191,7 +226,7 @@
   }
 }
 
-/* Profile Page */
+/* Profile Page Utilities */
 
 @utility profile-container {
   @apply space-y-8 p-4 sm:p-6 lg:p-8 text-slate-100 w-full min-h-full;

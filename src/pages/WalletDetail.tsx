@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useTransactionStore } from "../store/useTransactionStore";
@@ -6,7 +6,7 @@ import { useInvestmentStore } from "../store/useInvestmentStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useAnalyticsStore } from "../store/useAnalyticsStore";
 import { TransactionModal } from "../components/TransactionModal";
-import { InvestmentPage } from "../components/InvestmentPage";
+import { InvestmentPage } from "./InvestmentPage";
 import { MonthlyCard } from "../components/MonthlyCard";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { TransactionRequest } from "../services/transactionService";
@@ -18,7 +18,7 @@ const currencySymbols: Record<string, string> = {
   GBP: '£'
 };
 
-export const WalletDetail = () => {
+export const WalletDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const walletId = Number(id);
@@ -87,13 +87,13 @@ export const WalletDetail = () => {
 
   if (error || !wallet) {
     return (
-      <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center max-w-md mx-auto mt-12">
-        <span className="text-xs text-red-400 font-medium block mb-4">
+      <div className="p-6 bg-[#04110d]/80 border border-rose-500/20 rounded-2xl text-center max-w-md mx-auto mt-12">
+        <span className="text-xs text-rose-400 font-medium block mb-4">
           {error || "Cüzdan bulunamadı veya bu cüzdana erişim yetkiniz yok!"}
         </span>
         <button 
           onClick={() => navigate("/dashboard")} 
-          className="px-4 py-2 bg-white/10 text-white rounded-xl text-xs font-bold cursor-pointer hover:bg-white/20 transition-all"
+          className="px-4 py-2 bg-white/10 text-white hover:bg-white/20 rounded-xl text-xs font-bold cursor-pointer transition-all"
         >
           Dashboard'a Dön
         </button>
@@ -148,7 +148,7 @@ export const WalletDetail = () => {
                         {sim.investmentType}
                       </span>
                       <div className="text-base font-black text-white mt-2">
-                        {sim.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency]}
+                        {sim.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
                       </div>
                       <span className="text-[10px] text-slate-500 block mt-0.5">
                         Giriş: {sim.entryValue}
@@ -166,6 +166,7 @@ export const WalletDetail = () => {
             )}
           </div>
 
+          {/* Aylık Bütçe Dökümü */}
           <div className="space-y-3">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Aylık Bütçe Dökümü</h2>
             
@@ -190,11 +191,12 @@ export const WalletDetail = () => {
             )}
           </div>
 
+          {/* Son Hesap Hareketleri */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Son Hesap Hareketleri</h2>
             
             {transactions.length === 0 ? (
-              <div className="card-premium border-dashed border-2 border-emerald-500/10 p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
+              <div className="border-dashed border-2 border-emerald-500/10 p-8 rounded-3xl text-center min-h-[200px] flex flex-col items-center justify-center bg-[#04110d]/20">
                 <p className="text-emerald-400/60 font-medium text-sm">Bu cüzdana ait henüz bir harcama veya gelir kaydı bulunmuyor.</p>
                 <p className="text-xs text-slate-600 mt-1">İşlem eklemek için sağ paneli kullanabilirsiniz.</p>
               </div>
@@ -205,13 +207,15 @@ export const WalletDetail = () => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-200">{tx.description || "Açıklama Belirtilmemiş"}</span>
-                        <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40">{tx.categoryName}</span>
+                        {tx.categoryName && (
+                          <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40">{tx.categoryName}</span>
+                        )}
                       </div>
                       <span className="text-[10px] text-slate-500 block">{new Date(tx.transactionDate).toLocaleDateString('tr-TR')}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency]}
+                        {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
                       </span>
                       <button
                         onClick={() => handleDeleteTransaction(tx.id)}
@@ -228,17 +232,18 @@ export const WalletDetail = () => {
           </div>
         </div>
 
+        {/* Sağ Kolon (Eylemler & Grafikler) */}
         <div className="space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">İşlemler</h2>
-            <div className="card-premium bg-gradient-to-br from-[#0b3324]/20 to-transparent p-6 space-y-3 rounded-3xl border border-emerald-950/40">
+            <div className="bg-gradient-to-br from-[#0b3324]/20 to-transparent p-6 space-y-3 rounded-3xl border border-emerald-950/40">
               <p className="text-xs text-slate-400 leading-relaxed">
                 Bu cüzdana anlık olarak yeni gelir/gider ekleyin veya simüle edilmiş yatırım başlatın.
               </p>
               
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/10"
+                className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/10"
               >
                 + Yeni İşlem Ekle
               </button>
@@ -267,7 +272,7 @@ export const WalletDetail = () => {
                       paddingAngle={4}
                       dataKey="value"
                     >
-                      {chartData.map((entry, index) => (
+                      {chartData.map((_entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -280,7 +285,7 @@ export const WalletDetail = () => {
                 <div className="absolute text-center pointer-events-none mb-1">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Net Durum</span>
                   <span className={`text-sm font-black ${(totalIncome - totalExpense) >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                    {(totalIncome - totalExpense).toLocaleString("tr-TR")} {currencySymbols[wallet.currency]}
+                    {(totalIncome - totalExpense).toLocaleString("tr-TR")} {currencySymbols[wallet.currency] || wallet.currency}
                   </span>
                 </div>
               </div>
@@ -291,14 +296,14 @@ export const WalletDetail = () => {
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                     <span className="text-slate-400 font-medium">Gelir</span>
                   </div>
-                  <strong className="text-white">{totalIncome.toLocaleString("tr-TR")} {currencySymbols[wallet.currency]}</strong>
+                  <strong className="text-white">{totalIncome.toLocaleString("tr-TR")} {currencySymbols[wallet.currency] || wallet.currency}</strong>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
                     <span className="text-slate-400 font-medium">Gider</span>
                   </div>
-                  <strong className="text-white">{totalExpense.toLocaleString("tr-TR")} {currencySymbols[wallet.currency]}</strong>
+                  <strong className="text-white">{totalExpense.toLocaleString("tr-TR")} {currencySymbols[wallet.currency] || wallet.currency}</strong>
                 </div>
               </div>
             </div>

@@ -66,7 +66,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
 
     onSave({ 
       amount: parseFloat(amount), 
-      transactionType: type === "INCOME" ? "INCOME" : "EXPENSE", 
+      transactionType: type, 
       description, 
       categoryId: Number(finalCategoryId),
       walletId: walletId
@@ -81,8 +81,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
   const currentSelectValue = categoryId || (categories.length > 0 ? categories[0].id : "");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div className="w-full max-w-md bg-[#03140e] border border-emerald-950 rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div className="modal-overlay">
+      <div className="modal-container animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center pb-4 border-b border-emerald-950/40">
           <h3 className="text-md font-bold text-white tracking-wide">Yeni İşlem Ekle</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer">✕</button>
@@ -115,7 +115,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="form-input-dark text-lg w-full bg-[#04110d] border border-emerald-950 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500"
+              className="input-dark text-lg font-semibold"
             />
           </div>
 
@@ -165,7 +165,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
                 value={currentSelectValue}
                 onChange={(e) => setCategoryId(Number(e.target.value))}
                 required
-                className="form-input-dark text-sm text-slate-300 w-full bg-[#04110d] border border-emerald-950 rounded-xl p-3 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                className="select-dark"
               >
                 {isLoading ? (
                   <option value="">Kategoriler yükleniyor...</option>
@@ -189,14 +189,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
               placeholder="İşlem detayı..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="form-input-dark text-sm font-normal w-full bg-[#04110d] border border-emerald-950 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500"
+              className="input-dark font-normal"
             />
           </div>
 
           <button 
             type="submit" 
             disabled={isAddingNewCategory}
-            className="w-full mt-2 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+            className="btn-emerald mt-2 uppercase tracking-wider text-xs"
           >
             İşlemi Kaydet
           </button>
