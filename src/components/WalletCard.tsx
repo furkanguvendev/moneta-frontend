@@ -1,9 +1,4 @@
-interface Wallet {
-  id: number;
-  name: string;
-  balance: number;
-  currency: string;
-}
+import type { Wallet } from "../types/wallet";
 
 interface WalletCardProps {
   wallet: Wallet;

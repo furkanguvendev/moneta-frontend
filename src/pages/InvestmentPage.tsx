@@ -3,7 +3,7 @@ import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useWalletStore } from '../store/useWalletStore';
 import { useTransactionStore } from '../store/useTransactionStore';
 import { useAuthStore } from '../store/useAuthStore';
-import type { InvestmentType, MaturityType, InvestmentSimulation } from '../types/investment'; 
+import type { InvestmentType, MaturityType, InvestmentSimulation } from '../types/investment';
 
 interface InvestmentPageProps {
   initialWalletId?: number;
@@ -11,14 +11,14 @@ interface InvestmentPageProps {
 
 export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId }) => {
   const user = useAuthStore((state) => state.user);
-  const currentUserId = user?.id || 0;
+  const currentUserId = user?.id ? Number(user.id) : 0;
 
   const { wallets, fetchWallets } = useWalletStore();
   const { fetchTransactions } = useTransactionStore();
   const { simulations, isLoading, error, fetchSimulations, createSimulation, closeSimulation } =
     useInvestmentStore();
 
-  const [selectedWalletId, setSelectedWalletId] = useState<number>(initialWalletId || 0);
+  const [selectedWalletId, setSelectedWalletId] = useState<number | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [investmentType, setInvestmentType] = useState<InvestmentType>('FAIZ');
   const [maturityType, setMaturityType] = useState<MaturityType>('AYLIK');
@@ -30,44 +30,50 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
   useEffect(() => {
     if (currentUserId) {
       fetchSimulations(currentUserId);
-      if (wallets.length === 0) fetchWallets();
+      if (wallets.length === 0) {
+        fetchWallets();
+      }
     }
   }, [fetchSimulations, fetchWallets, currentUserId, wallets.length]);
 
-  const activeWalletId = selectedWalletId || initialWalletId || (wallets.length > 0 ? wallets[0].id : 0);
+  const activeWalletId =
+    selectedWalletId ?? initialWalletId ?? (wallets.length > 0 ? wallets[0].id : 0);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !entryValue || !activeWalletId) return;
-
     const numericAmount = parseFloat(amount);
+    const numericEntryValue = parseFloat(entryValue);
+
+    if (!activeWalletId || isNaN(numericAmount) || isNaN(numericEntryValue) || numericAmount <= 0) {
+      return;
+    }
 
     const success = await createSimulation(currentUserId, {
       walletId: activeWalletId,
       amount: numericAmount,
       investmentType,
       maturityType: investmentType === 'FAIZ' ? maturityType : undefined,
-      entryValue: parseFloat(entryValue),
+      entryValue: numericEntryValue,
     });
 
     if (success) {
       setAmount('');
       setEntryValue('');
-      
       fetchWallets();
       fetchTransactions(activeWalletId);
     }
   };
 
   const handleClose = async (sim: InvestmentSimulation) => {
+    const parsedCurrentEv = currentEvValue ? parseFloat(currentEvValue) : undefined;
+
     const success = await closeSimulation(sim.id, currentUserId, {
-      currentEvValue: currentEvValue ? parseFloat(currentEvValue) : undefined,
+      currentEvValue: parsedCurrentEv,
     });
 
     if (success) {
       setSelectedSimId(null);
       setCurrentEvValue('');
-      
       fetchWallets();
       fetchTransactions(sim.walletId || activeWalletId);
     }
@@ -76,8 +82,12 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
   return (
     <div className="space-y-8">
       <div className="border-b border-emerald-950/40 pb-4">
-        <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">Yatırım Simülatörü</h1>
-        <p className="text-xs text-slate-500 mt-1">Varlıklarınızı simüle ederek potansiyel getirileri takip edin.</p>
+        <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">
+          Yatırım Simülatörü
+        </h1>
+        <p className="text-xs text-slate-500 mt-1">
+          Varlıklarınızı simüle ederek potansiyel getirileri takip edin.
+        </p>
       </div>
 
       {error && (
@@ -88,13 +98,18 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
+        {/* Form Kartı */}
         <div className="card-premium bg-gradient-to-br from-[#0b3324]/20 to-transparent p-6 rounded-3xl border border-emerald-950/40 space-y-4 h-fit">
-          <h2 className="text-lg font-bold text-slate-200 tracking-wide">Yeni Simülasyon Başlat</h2>
+          <h2 className="text-lg font-bold text-slate-200 tracking-wide">
+            Yeni Simülasyon Başlat
+          </h2>
           
           <form onSubmit={handleCreate} className="space-y-4">
             {!initialWalletId && (
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Kaynak Cüzdan</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  Kaynak Cüzdan
+                </label>
                 <select
                   value={activeWalletId}
                   onChange={(e) => setSelectedWalletId(Number(e.target.value))}
@@ -110,7 +125,9 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Yatırım Türü</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
+                Yatırım Türü
+              </label>
               <select
                 value={investmentType}
                 onChange={(e) => setInvestmentType(e.target.value as InvestmentType)}
@@ -125,7 +142,9 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
 
             {investmentType === 'FAIZ' && (
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Faiz Vadesi</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  Faiz Vadesi
+                </label>
                 <select
                   value={maturityType}
                   onChange={(e) => setMaturityType(e.target.value as MaturityType)}
@@ -139,7 +158,9 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Yatırılacak Tutar (TL)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
+                Yatırılacak Tutar (TL)
+              </label>
               <input
                 type="number"
                 value={amount}
@@ -173,8 +194,11 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
           </form>
         </div>
 
+        {/* Simülasyon Listesi */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Aktif Simülasyonlar</h2>
+          <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">
+            Aktif Simülasyonlar
+          </h2>
 
           {isLoading && simulations.length === 0 && (
             <div className="text-xs text-emerald-400 font-medium">Yükleniyor...</div>
@@ -182,8 +206,12 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
 
           {!isLoading && simulations.length === 0 && (
             <div className="card-premium border-dashed border-2 border-emerald-500/10 p-8 text-center rounded-3xl">
-              <p className="text-emerald-400/60 font-medium text-sm">Henüz aktif bir yatırım simülasyonunuz bulunmuyor.</p>
-              <p className="text-xs text-slate-600 mt-1">Sol paneli kullanarak yeni bir yatırıma başlayabilirsiniz.</p>
+              <p className="text-emerald-400/60 font-medium text-sm">
+                Henüz aktif bir yatırım simülasyonunuz bulunmuyor.
+              </p>
+              <p className="text-xs text-slate-600 mt-1">
+                Sol paneli kullanarak yeni bir yatırıma başlayabilirsiniz.
+              </p>
             </div>
           )}
 
@@ -213,7 +241,9 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
                   <div className="pt-2 space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-500">Anapara:</span>
-                      <strong className="text-slate-200">{sim.amount.toLocaleString('tr-TR')} TL</strong>
+                      <strong className="text-slate-200">
+                        {sim.amount.toLocaleString('tr-TR')} TL
+                      </strong>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-500">
@@ -273,6 +303,7 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
             ))}
           </div>
         </div>
+
       </div>
     </div>
   );

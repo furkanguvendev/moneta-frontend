@@ -26,6 +26,15 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       ),
     },
     {
+      label: "Borçlar & Alacaklar",
+      path: "/debts",
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
       label: "Yatırımlar",
       path: "/investments",
       icon: (
@@ -47,7 +56,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   return (
     <>
-      {/* Mobil katman gölgesi (Overlay) */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -67,7 +75,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         `}
       >
         <div className="space-y-8">
-          {/* Logo & Mobil Kapatma */}
           <div className="flex items-center justify-between px-2">
             <div className="font-black text-2xl tracking-widest text-emerald-400 flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
@@ -75,7 +82,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             </div>
             <button
               onClick={onClose}
-              className="lg:hidden p-1.5 text-slate-400 hover:text-white hover:bg-emerald-500/10 rounded-xl transition-colors"
+              className="lg:hidden p-1.5 text-slate-400 hover:text-white hover:bg-emerald-500/10 rounded-xl transition-colors cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -83,7 +90,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             </button>
           </div>
 
-          {/* Navigasyon Linkleri */}
           <nav className="space-y-1.5">
             {navItems.map((item) => (
               <NavLink
@@ -106,7 +112,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </nav>
         </div>
 
-        {/* Çıkış Yap Butonu */}
         <div className="pt-4 border-t border-emerald-950/40">
           <button
             onClick={handleLogout}
@@ -115,7 +120,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span>Log Out</span>
+            <span>Çıkış Yap</span>
           </button>
         </div>
       </aside>

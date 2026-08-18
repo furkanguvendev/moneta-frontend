@@ -4,68 +4,87 @@ import type { CategoryRequest, CategoryResponse } from "../services/categoryServ
 import { useAuthStore } from "./useAuthStore";
 
 interface CategoryStore {
-    categories: CategoryResponse[];
-    mandatoryCategories: CategoryResponse[];
-    isLoading: boolean;
-    error: string | null;
-    fetchCategories: () => Promise<void>;
-    fetchMandatoryCategories: () => Promise<void>;
-    createCategory: (request: CategoryRequest) => Promise<void>;
+  categories: CategoryResponse[];
+  mandatoryCategories: CategoryResponse[];
+  isLoading: boolean;
+  error: string | null;
+  fetchCategories: () => Promise<void>;
+  fetchMandatoryCategories: () => Promise<void>;
+  createCategory: (request: CategoryRequest) => Promise<void>;
+  deleteCategory: (categoryId: number) => Promise<void>;
 }
 
 export const useCategoryStore = create<CategoryStore>((set, get) => ({
-    categories: [],
-    mandatoryCategories: [],
-    isLoading: false,
-    error: null,
+  categories: [],
+  mandatoryCategories: [],
+  isLoading: false,
+  error: null,
 
-    fetchCategories: async () => {
-        const authState = useAuthStore.getState() as ReturnType<typeof useAuthStore.getState>;
-        const rawUserId = authState.user?.id;
+  fetchCategories: async () => {
+    const authState = useAuthStore.getState() as ReturnType<
+      typeof useAuthStore.getState
+    >;
+    const rawUserId = authState.user?.id;
 
-        if (!rawUserId) {
-            set({ error: "Oturum açmış kullanıcı bulunamadı." });
-            return;
-        }
-
-        const userId = Number(rawUserId);
-        if (isNaN(userId)) return;
-
-        set({ isLoading: true, error: null });
-        try {
-            const data = await categoryService.getAllCategories(userId);
-            set({ categories: data, isLoading: false });
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : "Kategoriler yüklenemedi";
-            set({ error: errorMessage, isLoading: false });
-        }
-    },
-
-    fetchMandatoryCategories: async () => {
-        try {
-            const data = await categoryService.getMandatoryCategories();
-            set({ mandatoryCategories: data });
-        } catch (err: unknown) {
-            console.error("Zorunlu kategoriler yüklenemedi", err);
-        }
-    },
-
-    createCategory: async (request) => {
-        const authState = useAuthStore.getState() as ReturnType<typeof useAuthStore.getState>;
-        const rawUserId = authState.user?.id;
-
-        if (!rawUserId) return;
-
-        const userId = Number(rawUserId);
-        if (isNaN(userId)) return;
-
-        set({ isLoading: true, error: null });
-        try {
-            await categoryService.createCategory(userId, request);
-            await get().fetchCategories();
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : "Kategori oluşturulamadı";
-            set({ error: errorMessage, isLoading: false });
-        }
+    if (!rawUserId) {
+      set({ error: "Oturum açmış kullanıcı bulunamadı." });
+      return;
     }
+
+    const userId = Number(rawUserId);
+    if (isNaN(userId)) return;
+
+    set({ isLoading: true, error: null });
+    try {
+      const data = await categoryService.getAllCategories(userId);
+      set({ categories: data, isLoading: false });
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Kategoriler yüklenemedi";
+      set({ error: errorMessage, isLoading: false });
+    }
+  },
+
+  fetchMandatoryCategories: async () => {
+    try {
+      const data = await categoryService.getMandatoryCategories();
+      set({ mandatoryCategories: data });
+    } catch (err: unknown) {
+      console.error("Zorunlu kategoriler yüklenemedi", err);
+    }
+  },
+
+  createCategory: async (request) => {
+    const authState = useAuthStore.getState() as ReturnType<
+      typeof useAuthStore.getState
+    >;
+    const rawUserId = authState.user?.id;
+
+    if (!rawUserId) return;
+
+    const userId = Number(rawUserId);
+    if (isNaN(userId)) return;
+
+    set({ isLoading: true, error: null });
+    try {
+      await categoryService.createCategory(userId, request);
+      await get().fetchCategories();
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Kategori oluşturulamadı";
+      set({ error: errorMessage, isLoading: false });
+    }
+  },
+
+  deleteCategory: async (categoryId: number) => {
+    set({ isLoading: true, error: null });
+    try {
+      await categoryService.deleteCategory(categoryId);
+      await get().fetchCategories();
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Kategori silinemedi";
+      set({ error: errorMessage, isLoading: false });
+    }
+  },
 }));

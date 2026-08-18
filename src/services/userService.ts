@@ -1,13 +1,22 @@
 import axiosInstance from '../api/axiosInstance';
 
-export const userService = {
-    
-    getUserProfile: async (userId: number) => {
-        const response = await axiosInstance.get(`/users/${userId}`);
-        return response.data; // UserResponse
-    },
+export interface UserResponse {
+  id: number;
+  username: string;
+  email: string;
+  roles?: string[];
+  createdAt?: string;
+  firstName?: string;
+  lastName?: string;
+}
 
-    deleteUser: async (userId: number) => {
-        await axiosInstance.delete(`/users/${userId}`);
-    }
+export const userService = {
+  getUserProfile: async (userId: number): Promise<UserResponse> => {
+    const response = await axiosInstance.get<UserResponse>(`/users/${userId}`);
+    return response.data;
+  },
+
+  deleteUser: async (userId: number): Promise<void> => {
+    await axiosInstance.delete(`/users/${userId}`);
+  }
 };
