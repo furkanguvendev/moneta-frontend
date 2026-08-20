@@ -138,7 +138,7 @@
   }
 }
 
-/* Layout, Dashboard & Wallet Components */
+/* Layout, Dashboard, Wallet & Modal Components */
 
 @layer components {
   .layout-container {
@@ -223,6 +223,28 @@
 
   .form-input-dark {
     @apply w-full bg-zinc-950/40 border border-emerald-950/40 rounded-xl px-4 py-2.5 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500/30;
+  }
+
+  /* --- Modal Sınıfları (Eksik Olan Kısımlar Tamamlandı) --- */
+
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4;
+  }
+
+  .modal-container {
+    @apply w-full max-w-md bg-[#03140e] border border-emerald-900/40 rounded-2xl p-6 shadow-2xl text-slate-100 space-y-4;
+  }
+
+  .input-dark {
+    @apply w-full bg-[#062419]/80 border border-emerald-900/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder-emerald-700/50 focus:outline-none focus:border-emerald-500 transition-all;
+  }
+
+  .select-dark {
+    @apply w-full bg-[#062419]/80 border border-emerald-900/50 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition-all cursor-pointer;
+  }
+
+  .btn-emerald {
+    @apply w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-900/40 text-white font-bold rounded-xl shadow-lg transition-all duration-200 cursor-pointer;
   }
 }
 

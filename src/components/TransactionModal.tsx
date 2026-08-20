@@ -81,8 +81,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
   const currentSelectValue = categoryId || (categories.length > 0 ? categories[0].id : "");
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container animate-in fade-in zoom-in-95 duration-200">
+    /* fixed inset-0 z-50 flex items-center justify-center sınıfları eklendi */
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="modal-container w-full max-w-md bg-[#03140e] border border-emerald-950/60 rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center pb-4 border-b border-emerald-950/40">
           <h3 className="text-md font-bold text-white tracking-wide">Yeni İşlem Ekle</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer">✕</button>

@@ -6,12 +6,22 @@ export interface TransactionRequest {
     amount: number;
     description: string;
     transactionType: 'INCOME' | 'EXPENSE';
+    transactionDate?: string;
+}
+
+export interface TransactionUpdateRequest {
+    amount: number;
+    description: string;
+    categoryId: number;
+    transactionType: 'INCOME' | 'EXPENSE';
+    transactionDate?: string;
 }
 
 export interface TransactionResponse {
     id: number;
     amount: number;
     description: string;
+    categoryId?: number;
     categoryName: string;
     isMandatory: boolean;
     walletName: string;
@@ -20,6 +30,7 @@ export interface TransactionResponse {
 }
 
 export interface TransactionStatisticsResponse {
+    categoryId: number;
     categoryName: string;
     totalAmount: number;
     percentage: number;
@@ -43,6 +54,11 @@ export const transactionService = {
 
     addTransaction: async (request: TransactionRequest): Promise<TransactionResponse> => {
         const response = await axiosInstance.post('/transactions', request);
+        return response.data;
+    },
+
+    updateTransaction: async (id: number, request: TransactionUpdateRequest): Promise<TransactionResponse> => {
+        const response = await axiosInstance.put(`/transactions/${id}`, request);
         return response.data;
     },
 

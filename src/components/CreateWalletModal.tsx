@@ -35,8 +35,9 @@ export const CreateWalletModal = ({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    /* fixed inset-0 z-50 flex items-center justify-center sınıfları eklendi */
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="modal-container w-full max-w-md bg-[#03140e] border border-emerald-950/60 rounded-2xl p-6 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold text-white">Yeni Cüzdan Oluştur</h3>
           <button
