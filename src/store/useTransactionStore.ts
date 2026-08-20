@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { transactionService } from "../services/transactionService";
-import type { TransactionRequest, TransactionResponse, TransactionStatisticsResponse } from "../services/transactionService";
+import type { TransactionRequest, TransactionUpdateRequest, TransactionResponse, TransactionStatisticsResponse } from "../services/transactionService";
 
 interface TransactionStore {
     transactions: TransactionResponse[];
@@ -10,6 +10,7 @@ interface TransactionStore {
     fetchTransactions: (walletId: number) => Promise<void>;
     fetchStatistics: (walletId: number) => Promise<void>;
     addTransaction: (request: TransactionRequest) => Promise<void>;
+    updateTransaction: (id: number, walletId: number, request: TransactionUpdateRequest) => Promise<void>;
     deleteTransaction: (id: number, walletId: number) => Promise<void>;
 }
 
@@ -47,6 +48,18 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
             await get().fetchStatistics(request.walletId);
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "İşlem eklenemedi";
+            set({ error: errorMessage, isLoading: false });
+        }
+    },
+
+    updateTransaction: async (id, walletId, request) => {
+        set({ isLoading: true, error: null });
+        try {
+            await transactionService.updateTransaction(id, request);
+            await get().fetchTransactions(walletId);
+            await get().fetchStatistics(walletId);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "İşlem güncellenemedi";
             set({ error: errorMessage, isLoading: false });
         }
     },

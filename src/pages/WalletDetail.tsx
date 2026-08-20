@@ -9,7 +9,7 @@ import { TransactionModal } from "../components/TransactionModal";
 import { InvestmentPage } from "./InvestmentPage";
 import { MonthlyCard } from "../components/MonthlyCard";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import type { TransactionRequest } from "../services/transactionService";
+import type { TransactionRequest, TransactionResponse } from "../services/transactionService";
 
 const currencySymbols: Record<string, string> = {
   TRY: '₺',
@@ -27,14 +27,14 @@ export const WalletDetail: React.FC = () => {
   const currentUserId = user?.id || 0;
 
   const { wallets, fetchWallets } = useWalletStore();
-  const { transactions, isLoading, error, fetchTransactions, addTransaction, deleteTransaction } = useTransactionStore();
+  const { transactions, isLoading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction } = useTransactionStore();
   const { simulations, fetchSimulations } = useInvestmentStore();
   
-  // Analytics Store
   const { monthlyBreakdownList, fetchWalletMonthlyBreakdown } = useAnalyticsStore();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
+  const [editingTxId, setEditingTxId] = useState<number | null>(null);
 
   useEffect(() => {
     if (walletId && currentUserId) {
@@ -67,6 +67,22 @@ export const WalletDetail: React.FC = () => {
     await addTransaction(data);
     fetchWallets(); 
     fetchWalletMonthlyBreakdown(walletId);
+  };
+
+  const handleDateChange = async (tx: TransactionResponse, newDate: string) => {
+    if (!newDate) return;
+    
+    await updateTransaction(tx.id, walletId, {
+      amount: tx.amount,
+      description: tx.description,
+      categoryId: tx.categoryId || 1,
+      transactionType: tx.transactionType,
+      transactionDate: newDate
+    });
+
+    fetchWallets();
+    fetchWalletMonthlyBreakdown(walletId);
+    setEditingTxId(null);
   };
 
   const handleDeleteTransaction = async (transactionId: number) => {
@@ -211,8 +227,29 @@ export const WalletDetail: React.FC = () => {
                           <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40">{tx.categoryName}</span>
                         )}
                       </div>
-                      <span className="text-[10px] text-slate-500 block">{new Date(tx.transactionDate).toLocaleDateString('tr-TR')}</span>
+                      
+                      {/* Tarih Düzenleme Alanı */}
+                      <div className="flex items-center gap-2">
+                        {editingTxId === tx.id ? (
+                          <input
+                            type="datetime-local"
+                            defaultValue={tx.transactionDate ? tx.transactionDate.slice(0, 16) : ""}
+                            onBlur={(e) => handleDateChange(tx, e.target.value)}
+                            className="bg-zinc-900 text-emerald-400 text-[10px] px-2 py-1 rounded border border-emerald-500/30 focus:outline-none"
+                            autoFocus
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => setEditingTxId(tx.id)}
+                            className="text-[10px] text-slate-500 hover:text-emerald-400 cursor-pointer transition-colors block"
+                            title="Tarihi değiştirmek için tıklayın"
+                          >
+                            📅 {new Date(tx.transactionDate).toLocaleString('tr-TR')}
+                          </span>
+                        )}
+                      </div>
                     </div>
+
                     <div className="flex items-center gap-4">
                       <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
                         {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
@@ -232,7 +269,7 @@ export const WalletDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Sağ Kolon (Eylemler & Grafikler) */}
+        {/* Sağ Kolon */}
         <div className="space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">İşlemler</h2>
