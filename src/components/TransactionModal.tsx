@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useCategoryStore } from "../store/useCategoryStore";
 
+export type PaymentMethod = "CASH" | "CREDIT_CARD";
+
 interface TransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -11,12 +13,21 @@ interface TransactionModalProps {
     description: string; 
     categoryId: number;
     walletId: number;
+    paymentMethod: PaymentMethod;
+    installmentCount?: number;
   }) => void;
 }
 
-export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, walletId, onSave }) => {
+export const TransactionModal: React.FC<TransactionModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  walletId, 
+  onSave 
+}) => {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
+  const [installmentCount, setInstallmentCount] = useState<number>(1);
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [description, setDescription] = useState("");
 
@@ -57,58 +68,115 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+ const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount) return;
 
     const finalCategoryId = categoryId || (categories.length > 0 ? categories[0].id : "");
     if (!finalCategoryId) return;
 
-    onSave({ 
+    const payload = { 
       amount: parseFloat(amount), 
       transactionType: type, 
       description, 
       categoryId: Number(finalCategoryId),
-      walletId: walletId
-    });
+      walletId: walletId,
+      paymentMethod,
+      installmentCount: paymentMethod === "CREDIT_CARD" ? installmentCount : 1
+    };
 
+    console.log("TransactionModal onSave payload:", payload); // <-- EKLENEN SATIR
+
+    onSave(payload);
+
+    // Formu sıfırla
     setAmount("");
     setCategoryId("");
     setDescription("");
+    setPaymentMethod("CASH");
+    setInstallmentCount(1);
     onClose();
-  };
+};
 
   const currentSelectValue = categoryId || (categories.length > 0 ? categories[0].id : "");
+  const monthlyAmount = amount && installmentCount > 1 ? (parseFloat(amount) / installmentCount).toFixed(2) : null;
 
   return (
-    /* fixed inset-0 z-50 flex items-center justify-center sınıfları eklendi */
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="modal-container w-full max-w-md bg-[#03140e] border border-emerald-950/60 rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center pb-4 border-b border-emerald-950/40">
           <h3 className="text-md font-bold text-white tracking-wide">Yeni İşlem Ekle</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer">✕</button>
+          <button 
+            type="button" 
+            onClick={onClose} 
+            className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+          >
+            ✕
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {/* Gelir / Gider Seçimi */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-950/60 rounded-xl border border-emerald-950/40">
             <button
               type="button"
               onClick={() => setType("EXPENSE")}
-              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${type === "EXPENSE" ? "bg-rose-500/20 text-rose-400" : "text-slate-400"}`}
+              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                type === "EXPENSE" ? "bg-rose-500/20 text-rose-400" : "text-slate-400"
+              }`}
             >
               Gider (-)
             </button>
             <button
               type="button"
-              onClick={() => setType("INCOME")}
-              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${type === "INCOME" ? "bg-emerald-500/20 text-emerald-400" : "text-slate-400"}`}
+              onClick={() => {
+                setType("INCOME");
+                setPaymentMethod("CASH"); // Gelirde taksit/kredi kartı olmayacağı için
+              }}
+              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                type === "INCOME" ? "bg-emerald-500/20 text-emerald-400" : "text-slate-400"
+              }`}
             >
               Gelir (+)
             </button>
           </div>
 
+          {/* Ödeme Yöntemi (Sadece Gider İçin) */}
+          {type === "EXPENSE" && (
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Ödeme Yöntemi</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("CASH")}
+                  className={`py-2 text-xs font-semibold rounded-xl border transition-all ${
+                    paymentMethod === "CASH"
+                      ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-300"
+                      : "bg-zinc-950 border-emerald-950/60 text-slate-400 hover:border-emerald-900"
+                  }`}
+                >
+                  💵 Nakit / Peşin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("CREDIT_CARD")}
+                  className={`py-2 text-xs font-semibold rounded-xl border transition-all ${
+                    paymentMethod === "CREDIT_CARD"
+                      ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-300"
+                      : "bg-zinc-950 border-emerald-950/60 text-slate-400 hover:border-emerald-900"
+                  }`}
+                >
+                  💳 Kredi Kartı / Taksit
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tutar */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Tutar</label>
+            <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">
+              {paymentMethod === "CREDIT_CARD" ? "Toplam Tutar" : "Tutar"}
+            </label>
             <input
               type="number"
               step="0.01"
@@ -116,10 +184,36 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="input-dark text-lg font-semibold"
+              className="w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-lg font-semibold focus:outline-none focus:border-emerald-500/50 transition-all"
             />
           </div>
 
+          {/* Taksit Alanı (Kredi Kartı Seçiliyse Görünür) */}
+          {type === "EXPENSE" && paymentMethod === "CREDIT_CARD" && (
+            <div className="p-3 bg-[#04110d] border border-emerald-950 rounded-xl space-y-2 animate-in fade-in duration-150">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] font-bold text-emerald-400/60 uppercase tracking-widest">Taksit Sayısı</label>
+                {monthlyAmount && (
+                  <span className="text-[11px] font-bold text-emerald-400">
+                    Aylık: {monthlyAmount} ₺
+                  </span>
+                )}
+              </div>
+              <select
+                value={installmentCount}
+                onChange={(e) => setInstallmentCount(Number(e.target.value))}
+                className="w-full bg-zinc-950 border border-emerald-950/60 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                  <option key={num} value={num}>
+                    {num === 1 ? "Tek Çekim (1 Taksit)" : `${num} Taksit`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Kategori */}
           <div className="space-y-1">
             <div className="flex justify-between items-center mb-1">
               <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Kategori</label>
@@ -166,7 +260,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
                 value={currentSelectValue}
                 onChange={(e) => setCategoryId(Number(e.target.value))}
                 required
-                className="select-dark"
+                className="w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer"
               >
                 {isLoading ? (
                   <option value="">Kategoriler yükleniyor...</option>
@@ -183,6 +277,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
             )}
           </div>
 
+          {/* Açıklama */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Açıklama</label>
             <input
@@ -190,14 +285,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
               placeholder="İşlem detayı..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="input-dark font-normal"
+              className="w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-all font-normal"
             />
           </div>
 
           <button 
             type="submit" 
             disabled={isAddingNewCategory}
-            className="btn-emerald mt-2 uppercase tracking-wider text-xs"
+            className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800/40 disabled:text-zinc-600 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/10 transition-all cursor-pointer mt-2"
           >
             İşlemi Kaydet
           </button>

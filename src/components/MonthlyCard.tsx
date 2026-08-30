@@ -1,3 +1,5 @@
+import React from "react";
+
 interface MonthlyCardProps {
   year: number;
   month: number;
@@ -9,17 +11,17 @@ interface MonthlyCardProps {
 
 const monthNames = [
   "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+  "Temmuz", "Ağustos", "Eylul", "Ekim", "Kasım", "Aralık"
 ];
 
-export const MonthlyCard = ({
+export const MonthlyCard: React.FC<MonthlyCardProps> = ({
   year,
   month,
   totalIncome,
   totalExpense,
   currencySymbol,
   onClick
-}: MonthlyCardProps) => {
+}) => {
   const net = totalIncome - totalExpense;
 
   return (
@@ -31,7 +33,11 @@ export const MonthlyCard = ({
         <span className="text-xs font-bold text-slate-300 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
           📅 {monthNames[month - 1]} {year}
         </span>
-        <span className={`text-xs font-black px-2 py-0.5 rounded ${net >= 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+        <span className={`text-xs font-black px-2 py-0.5 rounded ${
+          net >= 0 
+            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+            : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+        }`}>
           Net: {net >= 0 ? '+' : ''}{net.toLocaleString('tr-TR')} {currencySymbol}
         </span>
       </div>

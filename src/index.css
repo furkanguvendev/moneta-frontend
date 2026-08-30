@@ -280,3 +280,15 @@
 @utility profile-delete-btn {
   @apply p-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95;
 }
+
+@layer components {
+  .input-dark {
+    @apply w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-all;
+  }
+  .select-dark {
+    @apply w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-all cursor-pointer;
+  }
+  .btn-emerald {
+    @apply w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/10 transition-all cursor-pointer;
+  }
+}
