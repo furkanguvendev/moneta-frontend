@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useTransactionStore } from "../store/useTransactionStore";
 import { useInvestmentStore } from "../store/useInvestmentStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useAnalyticsStore } from "../store/useAnalyticsStore";
+import { useDebtStore } from "../store/useDebtStore";
 import { TransactionModal } from "../components/TransactionModal";
 import { InvestmentPage } from "./InvestmentPage";
 import { MonthlyCard } from "../components/MonthlyCard";
@@ -29,21 +30,31 @@ export const WalletDetail: React.FC = () => {
   const { wallets, fetchWallets } = useWalletStore();
   const { transactions, isLoading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction } = useTransactionStore();
   const { simulations, fetchSimulations } = useInvestmentStore();
+  const { createDebt, syncInstallments } = useDebtStore();
   
   const { monthlyBreakdownList, fetchWalletMonthlyBreakdown } = useAnalyticsStore();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
   const [editingTxId, setEditingTxId] = useState<number | null>(null);
+  const syncedWalletRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (walletId && currentUserId) {
-      fetchWallets();
-      fetchTransactions(walletId);
-      fetchSimulations(currentUserId);
-      fetchWalletMonthlyBreakdown(walletId);
-    }
-  }, [walletId, currentUserId, fetchWallets, fetchTransactions, fetchSimulations, fetchWalletMonthlyBreakdown]);
+    const loadWalletData = async () => {
+      if (walletId && currentUserId) {
+        if (syncedWalletRef.current !== walletId) {
+          syncedWalletRef.current = walletId;
+          const today = new Date();
+          await syncInstallments(walletId, today.getFullYear(), today.getMonth() + 1);
+        }
+        fetchWallets();
+        fetchTransactions(walletId);
+        fetchSimulations(currentUserId);
+        fetchWalletMonthlyBreakdown(walletId);
+      }
+    };
+    loadWalletData();
+  }, [walletId, currentUserId]);
 
   const wallet = wallets.find((w) => w.id === walletId);
   const walletSimulations = simulations.filter((s) => s.walletId === walletId);
@@ -63,16 +74,37 @@ export const WalletDetail: React.FC = () => {
 
   const COLORS = ["#10b981", "#f43f5e"];
 
-  const handleSaveTransaction = async (data: TransactionRequest) => {
-    await addTransaction(data);
-    fetchWallets(); 
-    fetchWalletMonthlyBreakdown(walletId);
+  const handleSaveTransaction = async (
+    data: TransactionRequest & { paymentMethod: string; installmentCount?: number }
+  ) => {
+    const isInstallment = data.paymentMethod === "CREDIT_CARD" && (data.installmentCount ?? 1) > 1;
+
+    let success: boolean;
+
+    if (isInstallment) {
+      success = await createDebt({
+        title: data.description || "Taksitli Harcama",
+        totalAmount: data.amount,
+        debtType: "KREDI_KARTI_TAKSIDI",
+        totalInstallments: data.installmentCount!,
+        walletId: walletId,
+        categoryId: data.categoryId,
+      });
+    } else {
+      success = await addTransaction(data);
+    }
+
+    if (success) {
+      fetchWallets();
+      fetchWalletMonthlyBreakdown(walletId);
+      fetchTransactions(walletId);
+    }
   };
 
   const handleDateChange = async (tx: TransactionResponse, newDate: string) => {
     if (!newDate) return;
     
-    await updateTransaction(tx.id, walletId, {
+    const success = await updateTransaction(tx.id, walletId, {
       amount: tx.amount,
       description: tx.description,
       categoryId: tx.categoryId || 1,
@@ -80,16 +112,20 @@ export const WalletDetail: React.FC = () => {
       transactionDate: newDate
     });
 
-    fetchWallets();
-    fetchWalletMonthlyBreakdown(walletId);
-    setEditingTxId(null);
+    if (success) {
+      fetchWallets();
+      fetchWalletMonthlyBreakdown(walletId);
+      setEditingTxId(null);
+    }
   };
 
   const handleDeleteTransaction = async (transactionId: number) => {
     if (window.confirm("Bu işlemi silmek istediğinize emin misiniz?")) {
-      await deleteTransaction(transactionId, walletId);
-      fetchWallets();
-      fetchWalletMonthlyBreakdown(walletId);
+      const success = await deleteTransaction(transactionId, walletId);
+      if (success) {
+        fetchWallets();
+        fetchWalletMonthlyBreakdown(walletId);
+      }
     }
   };
 
@@ -119,7 +155,6 @@ export const WalletDetail: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-emerald-950/40 pb-6">
         <div>
           <button 
@@ -141,10 +176,8 @@ export const WalletDetail: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sol Kolon */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* Aktif Yatırımlar */}
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
               <h2 className="text-lg font-bold text-slate-200 tracking-wide">Aktif Yatırımlar</h2>
@@ -182,7 +215,6 @@ export const WalletDetail: React.FC = () => {
             )}
           </div>
 
-          {/* Aylık Bütçe Dökümü */}
           <div className="space-y-3">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Aylık Bütçe Dökümü</h2>
             
@@ -207,7 +239,6 @@ export const WalletDetail: React.FC = () => {
             )}
           </div>
 
-          {/* Son Hesap Hareketleri */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Son Hesap Hareketleri</h2>
             
@@ -228,7 +259,6 @@ export const WalletDetail: React.FC = () => {
                         )}
                       </div>
                       
-                      {/* Tarih Düzenleme Alanı */}
                       <div className="flex items-center gap-2">
                         {editingTxId === tx.id ? (
                           <input
@@ -244,7 +274,7 @@ export const WalletDetail: React.FC = () => {
                             className="text-[10px] text-slate-500 hover:text-emerald-400 cursor-pointer transition-colors block"
                             title="Tarihi değiştirmek için tıklayın"
                           >
-                            📅 {new Date(tx.transactionDate).toLocaleString('tr-TR')}
+                            📅 {tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('tr-TR') : ''}
                           </span>
                         )}
                       </div>
@@ -269,7 +299,6 @@ export const WalletDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Sağ Kolon */}
         <div className="space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">İşlemler</h2>

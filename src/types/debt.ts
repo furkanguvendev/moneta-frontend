@@ -1,26 +1,29 @@
-export type DebtType = 'CREDIT_CARD' | 'LOAN' | 'PERSONAL_DEBT';
+export type DebtType = 'BIREYSEL_KREDI' | 'KONUT_KREDISI' | 'TASIT_KREDISI' | 'KREDI_KARTI_TAKSIDI' | 'DIGER';
 
 export interface DebtRequest {
-  walletId: number;
   title: string;
   totalAmount: number;
   debtType: DebtType;
-  dueDate: string; // YYYY-MM-DD
+  totalInstallments: number;
+  dueDate?: string;
+  walletId: number;
+  categoryId: number;
 }
 
 export interface DebtPaymentRequest {
-  paymentAmount: number;
+  walletId: number;
+  amount: number;
 }
 
 export interface DebtResponse {
   id: number;
-  walletId: number;
-  walletName: string;
   title: string;
   totalAmount: number;
   remainingAmount: number;
+  totalInstallments?: number;
+  paidInstallments?: number;
+  monthlyInstallment?: number;
   debtType: DebtType;
-  dueDate: string;
-  isPaid: boolean;
-  createdAt: string;
+  dueDate?: string;
+  isCompleted: boolean;
 }

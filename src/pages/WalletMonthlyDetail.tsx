@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useAnalyticsStore } from "../store/useAnalyticsStore";
 import { useTransactionStore } from "../store/useTransactionStore";
+import { useDebtStore } from "../store/useDebtStore";
 import { TransactionModal } from "../components/TransactionModal";
+import type { TransactionRequest } from "../services/transactionService";
 
 const currencySymbols: Record<string, string> = {
   TRY: '₺',
@@ -26,6 +28,7 @@ export const WalletMonthlyDetail: React.FC = () => {
   const parsedMonth = Number(month);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const syncedKeyRef = useRef<string | null>(null);
 
   const { wallets, fetchWallets } = useWalletStore();
   const { monthlyBreakdownList, fetchWalletMonthlyBreakdown } = useAnalyticsStore();
@@ -37,15 +40,24 @@ export const WalletMonthlyDetail: React.FC = () => {
     addTransaction, 
     deleteTransaction 
   } = useTransactionStore();
+  const { createDebt, syncInstallments } = useDebtStore();
 
   useEffect(() => {
-    if (walletId) {
-      fetchWallets();
-      fetchWalletMonthlyBreakdown(walletId);
-      fetchTransactions(walletId);
-      fetchStatistics(walletId);
-    }
-  }, [walletId, fetchWallets, fetchWalletMonthlyBreakdown, fetchTransactions, fetchStatistics]);
+    const key = `${walletId}-${parsedYear}-${parsedMonth}`;
+    if (syncedKeyRef.current === key) return;
+    syncedKeyRef.current = key;
+
+    const loadMonthData = async () => {
+      if (walletId && parsedYear && parsedMonth) {
+        await syncInstallments(walletId, parsedYear, parsedMonth);
+        fetchWallets();
+        fetchWalletMonthlyBreakdown(walletId);
+        fetchTransactions(walletId);
+        fetchStatistics(walletId);
+      }
+    };
+    loadMonthData();
+  }, [walletId, parsedYear, parsedMonth]);
 
   const wallet = wallets.find((w) => w.id === walletId);
   const currentBreakdown = monthlyBreakdownList.find(
@@ -78,33 +90,45 @@ export const WalletMonthlyDetail: React.FC = () => {
   const net = income - expense;
   const monthName = monthNames[parsedMonth - 1] || `${parsedMonth}. Ay`;
 
-  const handleAddTransaction = async (data: {
-    amount: number;
-    transactionType: "INCOME" | "EXPENSE";
-    description: string;
-    categoryId: number;
-    walletId: number;
-  }) => {
-    await addTransaction({
-      walletId: data.walletId,
-      categoryId: data.categoryId,
-      amount: data.amount,
-      transactionType: data.transactionType,
-      description: data.description,
-    });
-    fetchWalletMonthlyBreakdown(walletId);
+  const handleAddTransaction = async (
+    data: TransactionRequest & { paymentMethod: string; installmentCount?: number }
+  ) => {
+    const isInstallment = data.paymentMethod === "CREDIT_CARD" && (data.installmentCount ?? 1) > 1;
+
+    let success: boolean;
+
+    if (isInstallment) {
+      success = await createDebt({
+        title: data.description || "Taksitli Harcama",
+        totalAmount: data.amount,
+        debtType: "KREDI_KARTI_TAKSIDI",
+        totalInstallments: data.installmentCount!,
+        walletId: walletId,
+        categoryId: data.categoryId,
+      });
+    } else {
+      success = await addTransaction(data);
+    }
+
+    if (success) {
+      fetchWallets();
+      fetchWalletMonthlyBreakdown(walletId);
+      fetchTransactions(walletId);
+      fetchStatistics(walletId);
+    }
   };
 
   const handleDeleteTransaction = async (txId: number) => {
     if (window.confirm("Bu işlemi silmek istediğinize emin misiniz?")) {
-      await deleteTransaction(txId, walletId);
-      fetchWalletMonthlyBreakdown(walletId);
+      const success = await deleteTransaction(txId, walletId);
+      if (success) {
+        fetchWalletMonthlyBreakdown(walletId);
+      }
     }
   };
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-12">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-950/40 pb-6">
         <div className="space-y-2">
           <button
@@ -127,7 +151,6 @@ export const WalletMonthlyDetail: React.FC = () => {
         </button>
       </div>
 
-      {/* Özet Kartları */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50">
           <span className="text-xs text-slate-500 uppercase font-bold">Toplam Gelir</span>
@@ -151,7 +174,6 @@ export const WalletMonthlyDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Kategori Harcama Dağılımı */}
       <div className="p-6 rounded-3xl bg-[#04110d]/50 border border-emerald-950/40 space-y-4">
         <h2 className="text-sm font-bold text-white tracking-wide uppercase">Kategori Bazlı Gider Dağılımı</h2>
         {statistics.length === 0 ? (
@@ -178,7 +200,6 @@ export const WalletMonthlyDetail: React.FC = () => {
         )}
       </div>
 
-      {/* İşlem Listesi */}
       <div className="space-y-4">
         <h2 className="text-md font-bold text-white">{monthName} {parsedYear} İşlem Detayları</h2>
         
@@ -222,7 +243,6 @@ export const WalletMonthlyDetail: React.FC = () => {
         )}
       </div>
 
-      {/* İşlem Ekle Modal */}
       <TransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
