@@ -8,6 +8,7 @@ export interface DebtRequest {
   dueDate?: string;
   walletId: number;
   categoryId: number;
+  startDate?: string;
 }
 
 export interface DebtPaymentRequest {

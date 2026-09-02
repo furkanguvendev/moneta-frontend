@@ -18,6 +18,7 @@ interface TransactionStore {
   addTransaction: (request: TransactionRequest) => Promise<boolean>;
   updateTransaction: (id: number, walletId: number, request: TransactionUpdateRequest) => Promise<boolean>;
   deleteTransaction: (id: number, walletId: number) => Promise<boolean>;
+  deleteTransactionsByMonth: (walletId: number, year: number, month: number) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -95,5 +96,19 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
       set({ error: errorMessage, isLoading: false });
       return false;
     }
-  }
+  },
+
+  deleteTransactionsByMonth: async (walletId, year, month) => {
+    set({ isLoading: true, error: null });
+    try {
+      await transactionService.deleteTransactionsByMonth(walletId, year, month);
+      await get().fetchTransactions(walletId);
+      set({ isLoading: false });
+      return true;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Aylık işlemler silinemedi.';
+      set({ error: errorMessage, isLoading: false });
+      return false;
+    }
+  },
 }));

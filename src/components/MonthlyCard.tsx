@@ -7,6 +7,7 @@ interface MonthlyCardProps {
   totalExpense: number;
   currencySymbol: string;
   onClick: () => void;
+  onDelete: () => void;
 }
 
 const monthNames = [
@@ -20,16 +21,30 @@ export const MonthlyCard: React.FC<MonthlyCardProps> = ({
   totalIncome,
   totalExpense,
   currencySymbol,
-  onClick
+  onClick,
+  onDelete
 }) => {
   const net = totalIncome - totalExpense;
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete();
+  };
 
   return (
     <div
       onClick={onClick}
-      className="p-4 rounded-2xl bg-[#04110d]/50 border border-emerald-950/50 flex flex-col justify-between gap-3 hover:border-emerald-600/40 hover:bg-[#04110d]/80 transition-all cursor-pointer group shadow-lg"
+      className="relative p-4 rounded-2xl bg-[#04110d]/50 border border-emerald-950/50 flex flex-col justify-between gap-3 hover:border-emerald-600/40 hover:bg-[#04110d]/80 transition-all cursor-pointer group shadow-lg"
     >
-      <div className="flex justify-between items-center border-b border-emerald-950/40 pb-2">
+      <button
+        onClick={handleDeleteClick}
+        className="absolute top-3 right-3 text-slate-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1 z-10"
+        title="Bu ayı sil"
+      >
+        ✕
+      </button>
+
+      <div className="flex justify-between items-center border-b border-emerald-950/40 pb-2 pr-4">
         <span className="text-xs font-bold text-slate-300 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
           📅 {monthNames[month - 1]} {year}
         </span>

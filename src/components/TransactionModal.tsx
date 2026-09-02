@@ -15,8 +15,20 @@ interface TransactionModalProps {
     walletId: number;
     paymentMethod: PaymentMethod;
     installmentCount?: number;
+    transactionDate?: string;
   }) => void;
 }
+
+const MIN_INSTALLMENTS = 2;
+const MAX_INSTALLMENTS = 36;
+
+const getTodayDateString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export const TransactionModal: React.FC<TransactionModalProps> = ({ 
   isOpen, 
@@ -27,9 +39,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
-  const [installmentCount, setInstallmentCount] = useState<number>(1);
+  const [installmentCountInput, setInstallmentCountInput] = useState<string>("2");
+  const [installmentError, setInstallmentError] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [description, setDescription] = useState("");
+  const [transactionDate, setTransactionDate] = useState<string>(getTodayDateString());
 
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -45,6 +59,42 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   }, [isOpen, fetchCategories]);
 
   if (!isOpen) return null;
+
+  const validateInstallmentCount = (value: string): number | null => {
+    if (value.trim() === "") {
+      setInstallmentError("Taksit sayısı boş bırakılamaz.");
+      return null;
+    }
+
+    if (!/^\d+$/.test(value.trim())) {
+      setInstallmentError("Taksit sayısı sadece tam sayı olmalıdır.");
+      return null;
+    }
+
+    const parsed = parseInt(value, 10);
+
+    if (parsed < MIN_INSTALLMENTS) {
+      setInstallmentError(`Taksit sayısı en az ${MIN_INSTALLMENTS} olmalıdır.`);
+      return null;
+    }
+
+    if (parsed > MAX_INSTALLMENTS) {
+      setInstallmentError(`Taksit sayısı en fazla ${MAX_INSTALLMENTS} olabilir.`);
+      return null;
+    }
+
+    setInstallmentError(null);
+    return parsed;
+  };
+
+  const handleInstallmentChange = (value: string) => {
+    setInstallmentCountInput(value);
+    if (value.trim() !== "") {
+      validateInstallmentCount(value);
+    } else {
+      setInstallmentError(null);
+    }
+  };
 
   const handleCreateCategory = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,12 +118,20 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     }
   };
 
- const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount) return;
 
     const finalCategoryId = categoryId || (categories.length > 0 ? categories[0].id : "");
     if (!finalCategoryId) return;
+
+    let finalInstallmentCount = 1;
+
+    if (type === "EXPENSE" && paymentMethod === "CREDIT_CARD") {
+      const validated = validateInstallmentCount(installmentCountInput);
+      if (validated === null) return;
+      finalInstallmentCount = validated;
+    }
 
     const payload = { 
       amount: parseFloat(amount), 
@@ -82,24 +140,27 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       categoryId: Number(finalCategoryId),
       walletId: walletId,
       paymentMethod,
-      installmentCount: paymentMethod === "CREDIT_CARD" ? installmentCount : 1
+      installmentCount: finalInstallmentCount,
+      transactionDate: transactionDate || undefined
     };
-
-    console.log("TransactionModal onSave payload:", payload); // <-- EKLENEN SATIR
 
     onSave(payload);
 
-    // Formu sıfırla
     setAmount("");
     setCategoryId("");
     setDescription("");
     setPaymentMethod("CASH");
-    setInstallmentCount(1);
+    setInstallmentCountInput("2");
+    setInstallmentError(null);
+    setTransactionDate(getTodayDateString());
     onClose();
-};
+  };
 
   const currentSelectValue = categoryId || (categories.length > 0 ? categories[0].id : "");
-  const monthlyAmount = amount && installmentCount > 1 ? (parseFloat(amount) / installmentCount).toFixed(2) : null;
+  const parsedInstallmentForDisplay = /^\d+$/.test(installmentCountInput) ? parseInt(installmentCountInput, 10) : null;
+  const monthlyAmount = amount && parsedInstallmentForDisplay && parsedInstallmentForDisplay > 1
+    ? (parseFloat(amount) / parsedInstallmentForDisplay).toFixed(2)
+    : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -116,7 +177,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {/* Gelir / Gider Seçimi */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-950/60 rounded-xl border border-emerald-950/40">
             <button
               type="button"
@@ -131,7 +191,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               type="button"
               onClick={() => {
                 setType("INCOME");
-                setPaymentMethod("CASH"); // Gelirde taksit/kredi kartı olmayacağı için
+                setPaymentMethod("CASH");
               }}
               className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 type === "INCOME" ? "bg-emerald-500/20 text-emerald-400" : "text-slate-400"
@@ -141,7 +201,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </button>
           </div>
 
-          {/* Ödeme Yöntemi (Sadece Gider İçin) */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">İşlem Tarihi</label>
+            <input
+              type="date"
+              required
+              value={transactionDate}
+              onChange={(e) => setTransactionDate(e.target.value)}
+              className="w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-all"
+            />
+          </div>
+
           {type === "EXPENSE" && (
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Ödeme Yöntemi</label>
@@ -172,7 +242,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
           )}
 
-          {/* Tutar */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">
               {paymentMethod === "CREDIT_CARD" ? "Toplam Tutar" : "Tutar"}
@@ -188,7 +257,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             />
           </div>
 
-          {/* Taksit Alanı (Kredi Kartı Seçiliyse Görünür) */}
           {type === "EXPENSE" && paymentMethod === "CREDIT_CARD" && (
             <div className="p-3 bg-[#04110d] border border-emerald-950 rounded-xl space-y-2 animate-in fade-in duration-150">
               <div className="flex justify-between items-center">
@@ -199,21 +267,22 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   </span>
                 )}
               </div>
-              <select
-                value={installmentCount}
-                onChange={(e) => setInstallmentCount(Number(e.target.value))}
-                className="w-full bg-zinc-950 border border-emerald-950/60 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
-                  <option key={num} value={num}>
-                    {num === 1 ? "Tek Çekim (1 Taksit)" : `${num} Taksit`}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder={`${MIN_INSTALLMENTS} - ${MAX_INSTALLMENTS} arası`}
+                value={installmentCountInput}
+                onChange={(e) => handleInstallmentChange(e.target.value)}
+                className={`w-full bg-zinc-950 border rounded-lg p-2 text-xs text-white focus:outline-none transition-all ${
+                  installmentError ? "border-rose-500/60 focus:border-rose-500" : "border-emerald-950/60 focus:border-emerald-500"
+                }`}
+              />
+              {installmentError && (
+                <p className="text-[10px] text-rose-400 font-semibold">{installmentError}</p>
+              )}
             </div>
           )}
 
-          {/* Kategori */}
           <div className="space-y-1">
             <div className="flex justify-between items-center mb-1">
               <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Kategori</label>
@@ -277,7 +346,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             )}
           </div>
 
-          {/* Açıklama */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-emerald-400/40 uppercase tracking-widest">Açıklama</label>
             <input

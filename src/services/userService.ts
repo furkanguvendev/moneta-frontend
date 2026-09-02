@@ -8,11 +8,24 @@ export interface UserResponse {
   createdAt?: string;
   firstName?: string;
   lastName?: string;
+  budgetStartDay?: number;
+  walletCount?: number;
+}
+
+export interface UserUpdateRequest {
+  firstName?: string;
+  lastName?: string;
+  budgetStartDay?: number;
 }
 
 export const userService = {
   getUserProfile: async (userId: number): Promise<UserResponse> => {
     const response = await axiosInstance.get<UserResponse>(`/users/${userId}`);
+    return response.data;
+  },
+
+  updateUserProfile: async (userId: number, request: UserUpdateRequest): Promise<UserResponse> => {
+    const response = await axiosInstance.put<UserResponse>(`/users/${userId}`, request);
     return response.data;
   },
 

@@ -28,7 +28,7 @@ export const WalletDetail: React.FC = () => {
   const currentUserId = user?.id || 0;
 
   const { wallets, fetchWallets } = useWalletStore();
-  const { transactions, isLoading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction } = useTransactionStore();
+  const { transactions, isLoading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction, deleteTransactionsByMonth } = useTransactionStore();
   const { simulations, fetchSimulations } = useInvestmentStore();
   const { createDebt, syncInstallments } = useDebtStore();
   
@@ -75,7 +75,7 @@ export const WalletDetail: React.FC = () => {
   const COLORS = ["#10b981", "#f43f5e"];
 
   const handleSaveTransaction = async (
-    data: TransactionRequest & { paymentMethod: string; installmentCount?: number }
+    data: TransactionRequest & { paymentMethod: string; installmentCount?: number; transactionDate?: string }
   ) => {
     const isInstallment = data.paymentMethod === "CREDIT_CARD" && (data.installmentCount ?? 1) > 1;
 
@@ -89,6 +89,7 @@ export const WalletDetail: React.FC = () => {
         totalInstallments: data.installmentCount!,
         walletId: walletId,
         categoryId: data.categoryId,
+        startDate: data.transactionDate,
       });
     } else {
       success = await addTransaction(data);
@@ -122,6 +123,16 @@ export const WalletDetail: React.FC = () => {
   const handleDeleteTransaction = async (transactionId: number) => {
     if (window.confirm("Bu işlemi silmek istediğinize emin misiniz?")) {
       const success = await deleteTransaction(transactionId, walletId);
+      if (success) {
+        fetchWallets();
+        fetchWalletMonthlyBreakdown(walletId);
+      }
+    }
+  };
+
+    const handleDeleteMonth = async (year: number, month: number) => {
+    if (window.confirm(`${month}/${year} dönemine ait tüm işlemleri silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) {
+      const success = await deleteTransactionsByMonth(walletId, year, month);
       if (success) {
         fetchWallets();
         fetchWalletMonthlyBreakdown(walletId);
@@ -233,6 +244,7 @@ export const WalletDetail: React.FC = () => {
                     totalExpense={item.totalExpense}
                     currencySymbol={currencySymbols[wallet.currency] || wallet.currency}
                     onClick={() => navigate(`/wallets/${walletId}/month/${item.year}/${item.month}`)}
+                    onDelete={() => handleDeleteMonth(item.year, item.month)}
                   />
                 ))}
               </div>
