@@ -77,5 +77,9 @@ export const transactionService = {
 
   deleteTransaction: async (id: number): Promise<void> => {
     await axiosInstance.delete(`/transactions/${id}`);
-  }
+  },
+
+  deleteTransactionsByMonth: async (walletId: number, year: number, month: number): Promise<void> => {
+    await axiosInstance.delete(`/transactions/wallet/${walletId}/month/${year}/${month}`);
+  },
 };

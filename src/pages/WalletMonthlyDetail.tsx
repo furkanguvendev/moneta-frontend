@@ -91,7 +91,7 @@ export const WalletMonthlyDetail: React.FC = () => {
   const monthName = monthNames[parsedMonth - 1] || `${parsedMonth}. Ay`;
 
   const handleAddTransaction = async (
-    data: TransactionRequest & { paymentMethod: string; installmentCount?: number }
+    data: TransactionRequest & { paymentMethod: string; installmentCount?: number; transactionDate?: string }
   ) => {
     const isInstallment = data.paymentMethod === "CREDIT_CARD" && (data.installmentCount ?? 1) > 1;
 
@@ -105,6 +105,7 @@ export const WalletMonthlyDetail: React.FC = () => {
         totalInstallments: data.installmentCount!,
         walletId: walletId,
         categoryId: data.categoryId,
+        startDate: data.transactionDate,
       });
     } else {
       success = await addTransaction(data);

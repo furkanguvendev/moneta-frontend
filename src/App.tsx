@@ -10,6 +10,7 @@ import { WalletMonthlyDetail } from "./pages/WalletMonthlyDetail";
 import { MainLayout } from "./layouts/MainLayout";
 import { InvestmentPage } from "./pages/InvestmentPage";
 import './App.css';
+import { DebtsPage } from "./pages/DebtsPage";
 
 const LandingGuard = () => {
   const skipLanding = localStorage.getItem("skipLanding") === "true";
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
           {
             path: "/profile", 
             element: <Profile />,
+          },
+          {
+            path: "/debts",
+            element: <DebtsPage />,
           },
         ],
       },
