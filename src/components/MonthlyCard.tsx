@@ -38,17 +38,17 @@ export const MonthlyCard: React.FC<MonthlyCardProps> = ({
     >
       <button
         onClick={handleDeleteClick}
-        className="absolute top-3 right-3 text-slate-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1 z-10"
+        className="absolute top-3 right-3 text-slate-600 hover:text-rose-400 hover-reveal-btn text-xs p-1 z-10"
         title="Bu ayı sil"
       >
         ✕
       </button>
 
-      <div className="flex justify-between items-center border-b border-emerald-950/40 pb-2 pr-4">
-        <span className="text-xs font-bold text-slate-300 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+      <div className="flex justify-between items-center gap-2 border-b border-emerald-950/40 pb-2 pr-4">
+        <span className="text-xs font-bold text-slate-300 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5 min-w-0 truncate">
           📅 {monthNames[month - 1]} {year}
         </span>
-        <span className={`text-xs font-black px-2 py-0.5 rounded ${
+        <span className={`text-xs font-black px-2 py-0.5 rounded shrink-0 ${
           net >= 0 
             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
             : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
@@ -57,14 +57,14 @@ export const MonthlyCard: React.FC<MonthlyCardProps> = ({
         </span>
       </div>
 
-      <div className="flex justify-between text-xs pt-1">
-        <div>
+      <div className="flex justify-between text-xs pt-1 gap-2">
+        <div className="min-w-0">
           <span className="text-[10px] text-slate-500 block uppercase font-medium">Gelir</span>
-          <span className="font-bold text-emerald-400">+{totalIncome.toLocaleString('tr-TR')} {currencySymbol}</span>
+          <span className="font-bold text-emerald-400 truncate block">+{totalIncome.toLocaleString('tr-TR')} {currencySymbol}</span>
         </div>
-        <div className="text-right">
+        <div className="text-right min-w-0">
           <span className="text-[10px] text-slate-500 block uppercase font-medium">Gider</span>
-          <span className="font-bold text-rose-400">-{totalExpense.toLocaleString('tr-TR')} {currencySymbol}</span>
+          <span className="font-bold text-rose-400 truncate block">-{totalExpense.toLocaleString('tr-TR')} {currencySymbol}</span>
         </div>
       </div>
     </div>

@@ -225,7 +225,7 @@
     @apply w-full bg-zinc-950/40 border border-emerald-950/40 rounded-xl px-4 py-2.5 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500/30;
   }
 
-  /* --- Modal Sınıfları (Eksik Olan Kısımlar Tamamlandı) --- */
+  /* --- Modal Sınıfları --- */
 
   .modal-overlay {
     @apply fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4;
@@ -245,6 +245,16 @@
 
   .btn-emerald {
     @apply w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-900/40 text-white font-bold rounded-xl shadow-lg transition-all duration-200 cursor-pointer;
+  }
+
+  /* --- Responsive Ortak Desenler (yeni) --- */
+
+  .hover-reveal-btn {
+    @apply opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 cursor-pointer;
+  }
+
+  .empty-state-box {
+    @apply p-4 rounded-2xl bg-[#04110d]/20 border border-emerald-950/30 text-xs text-slate-500;
   }
 }
 

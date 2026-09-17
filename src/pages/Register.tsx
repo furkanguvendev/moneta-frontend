@@ -41,12 +41,12 @@ export const Register: React.FC = () => {
 
   return (
     <div
-      className="auth-container min-h-screen bg-cover bg-center flex items-center justify-center p-4 selection:bg-emerald-500 selection:text-zinc-950"
+      className="auth-container bg-cover bg-center selection:bg-emerald-500 selection:text-zinc-950"
       style={{ backgroundImage: `url(${budget})` }}
     >
       <div className="auth-overlay"></div>
 
-      <div className="auth-card relative z-10 w-full max-w-lg">
+      <div className="auth-card relative z-10 w-full max-w-lg mx-4">
         <div className="text-center mb-8">
           <h1 className="auth-title">Kayıt Ol</h1>
           <p className="text-sm text-white/60 mt-1">
@@ -62,7 +62,7 @@ export const Register: React.FC = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 flex flex-col gap-1.5">
+            <div className="flex-1 flex flex-col gap-1.5 min-w-0">
               <label className="auth-label">Ad</label>
               <input
                 {...register("firstName", { required: "Ad alanı zorunludur" })}
@@ -76,7 +76,7 @@ export const Register: React.FC = () => {
               )}
             </div>
 
-            <div className="flex-1 flex flex-col gap-1.5">
+            <div className="flex-1 flex flex-col gap-1.5 min-w-0">
               <label className="auth-label">Soyad</label>
               <input
                 {...register("surname", { required: "Soyad alanı zorunludur" })}

@@ -108,17 +108,17 @@ export const DashboardChart: React.FC<DashboardChartProps> = ({
               return (
                 <div
                   key={wallet.id}
-                  className="flex items-center gap-1.5 text-[11px]"
+                  className="flex items-center gap-1.5 text-[11px] min-w-0 max-w-full"
                 >
                   <div
-                    className={`w-2 h-2 rounded-full ${
+                    className={`w-2 h-2 rounded-full shrink-0 ${
                       colors[index % colors.length]
                     }`}
                   />
-                  <span className="text-slate-400 font-medium">
+                  <span className="text-slate-400 font-medium truncate max-w-[100px]">
                     {wallet.name}
                   </span>
-                  <span className="text-slate-500">%{ratio.toFixed(0)}</span>
+                  <span className="text-slate-500 shrink-0">%{ratio.toFixed(0)}</span>
                 </div>
               );
             })}

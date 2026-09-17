@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [dontShowAgain, setDontShowAgain] = useState<boolean>(false);
   const sectionsRef = useRef<Map<string, HTMLElement>>(new Map());
 
@@ -10,7 +12,7 @@ export const Landing: React.FC = () => {
     if (dontShowAgain) {
       localStorage.setItem('skipLanding', 'true');
     }
-    navigate('/login');
+    navigate(isAuthenticated ? '/dashboard' : '/login');
   };
 
   const addToRefs = useCallback((node: HTMLElement | null) => {
@@ -82,17 +84,19 @@ export const Landing: React.FC = () => {
                 onClick={handleStartApp} 
                 className="landing-btn-primary px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-lg shadow-emerald-500/20 cursor-pointer active:scale-95"
               >
-                Uygulamaya Giriş Yap
+                {isAuthenticated ? "Uygulamaya Dön" : "Uygulamaya Giriş Yap"}
               </button>
-              <label className="flex items-center gap-3 cursor-pointer text-sm text-white/60 hover:text-white transition-colors py-2 select-none">
-                <input 
-                  type="checkbox" 
-                  checked={dontShowAgain} 
-                  onChange={(e) => setDontShowAgain(e.target.checked)} 
-                  className="w-5 h-5 accent-emerald-500 rounded cursor-pointer" 
-                />
-                <span>Bu ekranı bir daha gösterme</span>
-              </label>
+              {!isAuthenticated && (
+                <label className="flex items-center gap-3 cursor-pointer text-sm text-white/60 hover:text-white transition-colors py-2 select-none">
+                  <input 
+                    type="checkbox" 
+                    checked={dontShowAgain} 
+                    onChange={(e) => setDontShowAgain(e.target.checked)} 
+                    className="w-5 h-5 accent-emerald-500 rounded cursor-pointer" 
+                  />
+                  <span>Bu ekranı bir daha gösterme</span>
+                </label>
+              )}
             </div>
           </div>
           <div className="flex-1 w-full max-w-2xl flex items-center justify-center mt-12 lg:mt-0">

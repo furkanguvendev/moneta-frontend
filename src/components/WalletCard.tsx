@@ -23,12 +23,12 @@ export const WalletCard = ({
   return (
     <div
       onClick={() => onNavigate(wallet.id)}
-      className="card-premium flex flex-col justify-between h-[180px] cursor-pointer hover:border-emerald-500/30 hover:scale-[1.01] transition-all duration-300 group relative"
+      className="card-premium flex flex-col justify-between min-h-[180px] cursor-pointer hover:border-emerald-500/30 hover:scale-[1.01] transition-all duration-300 group relative"
     >
       <div>
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="font-bold text-base text-slate-100 group-hover:text-emerald-400 transition-colors">
+        <div className="flex flex-wrap justify-between items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-base text-slate-100 group-hover:text-emerald-400 transition-colors truncate">
               {wallet.name}
             </h3>
             <span className="text-xs text-slate-500">
@@ -36,14 +36,14 @@ export const WalletCard = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-lg font-black text-emerald-400">
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-lg font-black text-emerald-400 truncate max-w-[140px]">
               {wallet.balance.toLocaleString("tr-TR")}{" "}
               {currencySymbols[wallet.currency] || wallet.currency}
             </span>
             <button
               onClick={handleDelete}
-              className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
+              className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer shrink-0"
               title="Cüzdanı Sil"
             >
               <svg
@@ -65,9 +65,9 @@ export const WalletCard = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center text-xs text-slate-400/60 border-t border-emerald-950/30 pt-3">
+      <div className="flex justify-between items-center text-xs text-slate-400/60 border-t border-emerald-950/30 pt-3 mt-3">
         <span>Detayları ve İşlemleri Gör</span>
-        <span className="text-emerald-400 text-sm group-hover:translate-x-1 transition-transform">
+        <span className="text-emerald-400 text-sm group-hover:translate-x-1 transition-transform shrink-0">
           →
         </span>
       </div>
@@ -79,7 +79,7 @@ export const AddWalletCard = ({ onClick }: { onClick: () => void }) => {
   return (
     <div
       onClick={onClick}
-      className="group border-2 border-dashed border-emerald-900/30 hover:border-emerald-500/30 rounded-2xl p-6 flex flex-col items-center justify-center h-[180px] cursor-pointer transition-all duration-300 bg-[#0b3324]/10 hover:bg-[#0b3324]/20"
+      className="group border-2 border-dashed border-emerald-900/30 hover:border-emerald-500/30 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[180px] cursor-pointer transition-all duration-300 bg-[#0b3324]/10 hover:bg-[#0b3324]/20"
     >
       <span className="text-sm font-bold text-slate-200 tracking-wide">
         + Yeni Cüzdan Oluştur

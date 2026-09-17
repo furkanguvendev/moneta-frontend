@@ -40,9 +40,9 @@ export const Login: React.FC = () => {
           FİNANSAL TAKİBİN EN SADE YOLU
         </h2>
         <Link 
-          to="/" 
+          to="/aboutUs" 
           className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 cursor-pointer text-white"
-        >
+          >
           Daha fazlası
         </Link>
       </div>

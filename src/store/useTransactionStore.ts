@@ -13,6 +13,7 @@ interface TransactionStore {
   statistics: TransactionStatisticsResponse[];
   isLoading: boolean;
   error: string | null;
+  actionError: string | null;
   fetchTransactions: (walletId: number, params?: TransactionFilterParams) => Promise<void>;
   fetchStatistics: (walletId: number, params?: TransactionFilterParams) => Promise<void>;
   addTransaction: (request: TransactionRequest) => Promise<boolean>;
@@ -20,6 +21,7 @@ interface TransactionStore {
   deleteTransaction: (id: number, walletId: number) => Promise<boolean>;
   deleteTransactionsByMonth: (walletId: number, year: number, month: number) => Promise<boolean>;
   clearError: () => void;
+  clearActionError: () => void;
 }
 
 export const useTransactionStore = create<TransactionStore>((set, get) => ({
@@ -27,8 +29,10 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
   statistics: [],
   isLoading: false,
   error: null,
+  actionError: null,
 
   clearError: () => set({ error: null }),
+  clearActionError: () => set({ actionError: null }),
 
   fetchTransactions: async (walletId, params) => {
     set({ isLoading: true, error: null });
@@ -51,55 +55,58 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
   },
 
   addTransaction: async (request) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, actionError: null });
     try {
       await transactionService.addTransaction(request);
       await Promise.all([
         get().fetchTransactions(request.walletId),
         get().fetchStatistics(request.walletId)
       ]);
+      set({ isLoading: false });
       return true;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "İşlem eklenemedi";
-      set({ error: errorMessage, isLoading: false });
+      set({ actionError: errorMessage, isLoading: false });
       return false;
     }
   },
 
   updateTransaction: async (id, walletId, request) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, actionError: null });
     try {
       await transactionService.updateTransaction(id, request);
       await Promise.all([
         get().fetchTransactions(walletId),
         get().fetchStatistics(walletId)
       ]);
+      set({ isLoading: false });
       return true;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "İşlem güncellenemedi";
-      set({ error: errorMessage, isLoading: false });
+      set({ actionError: errorMessage, isLoading: false });
       return false;
     }
   },
 
   deleteTransaction: async (id, walletId) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, actionError: null });
     try {
       await transactionService.deleteTransaction(id);
       await Promise.all([
         get().fetchTransactions(walletId),
         get().fetchStatistics(walletId)
       ]);
+      set({ isLoading: false });
       return true;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "İşlem silinemedi";
-      set({ error: errorMessage, isLoading: false });
+      set({ actionError: errorMessage, isLoading: false });
       return false;
     }
   },
 
   deleteTransactionsByMonth: async (walletId, year, month) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, actionError: null });
     try {
       await transactionService.deleteTransactionsByMonth(walletId, year, month);
       await get().fetchTransactions(walletId);
@@ -107,7 +114,7 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
       return true;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Aylık işlemler silinemedi.';
-      set({ error: errorMessage, isLoading: false });
+      set({ actionError: errorMessage, isLoading: false });
       return false;
     }
   },

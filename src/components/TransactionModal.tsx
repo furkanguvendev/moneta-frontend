@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useCategoryStore } from "../store/useCategoryStore";
+import { useTransactionStore } from "../store/useTransactionStore";
 
 export type PaymentMethod = "CASH" | "CREDIT_CARD";
 
@@ -51,6 +52,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
 
   const { categories, fetchCategories, createCategory, isLoading } = useCategoryStore();
+  const { actionError, clearActionError } = useTransactionStore();
 
   useEffect(() => {
     if (isOpen) {
@@ -120,6 +122,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    clearActionError();
     if (!amount) return;
 
     const finalCategoryId = categoryId || (categories.length > 0 ? categories[0].id : "");
@@ -153,6 +156,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     setInstallmentCountInput("2");
     setInstallmentError(null);
     setTransactionDate(getTodayDateString());
+  };
+
+  const handleClose = () => {
+    clearActionError();
     onClose();
   };
 
@@ -169,7 +176,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           <h3 className="text-md font-bold text-white tracking-wide">Yeni İşlem Ekle</h3>
           <button 
             type="button" 
-            onClick={onClose} 
+            onClick={handleClose} 
             className="text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             ✕
@@ -356,6 +363,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               className="w-full bg-zinc-950 border border-emerald-950/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-all font-normal"
             />
           </div>
+
+          {actionError && (
+            <p className="text-xs text-rose-400 font-semibold bg-rose-500/10 border border-rose-500/20 rounded-xl px-3 py-2">
+              {actionError}
+            </p>
+          )}
 
           <button 
             type="submit" 
