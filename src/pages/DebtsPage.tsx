@@ -71,14 +71,14 @@ export const DebtsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50">
           <span className="text-xs text-slate-500 uppercase font-bold">Toplam Kalan Borç</span>
-          <div className="text-2xl font-black text-rose-400 mt-1">
+          <div className="text-2xl font-black text-rose-400 mt-1 truncate">
             {totalRemaining.toLocaleString('tr-TR')} ₺
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50">
           <span className="text-xs text-slate-500 uppercase font-bold">Aylık Toplam Taksit</span>
-          <div className="text-2xl font-black text-amber-400 mt-1">
+          <div className="text-2xl font-black text-amber-400 mt-1 truncate">
             {totalMonthly.toLocaleString('tr-TR')} ₺
           </div>
         </div>
@@ -132,15 +132,15 @@ export const DebtsPage: React.FC = () => {
                 key={debt.id}
                 className="p-5 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/30 transition-all space-y-3"
               >
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-200">{debt.title}</span>
-                      <span className="text-[10px] bg-zinc-900 text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-950/40">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold text-slate-200 truncate max-w-[240px]">{debt.title}</span>
+                      <span className="text-[10px] bg-zinc-900 text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-950/40 shrink-0">
                         {debtTypeLabels[debt.debtType] || debt.debtType}
                       </span>
                       {debt.isCompleted && (
-                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">
                           Tamamlandı
                         </span>
                       )}
@@ -152,7 +152,7 @@ export const DebtsPage: React.FC = () => {
 
                   <button
                     onClick={() => handleDelete(debt.id, debt.title)}
-                    className="text-slate-500 hover:text-rose-400 transition-colors cursor-pointer text-xs p-1"
+                    className="text-slate-500 hover:text-rose-400 transition-colors cursor-pointer text-xs p-1 self-start shrink-0"
                     title="Kaydı Sil"
                   >
                     ✕
@@ -160,17 +160,17 @@ export const DebtsPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-500 block">Toplam Tutar</span>
-                    <span className="text-white font-bold">{debt.totalAmount.toLocaleString('tr-TR')} ₺</span>
+                    <span className="text-white font-bold truncate block">{debt.totalAmount.toLocaleString('tr-TR')} ₺</span>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-500 block">Kalan Tutar</span>
-                    <span className="text-rose-400 font-bold">{debt.remainingAmount.toLocaleString('tr-TR')} ₺</span>
+                    <span className="text-rose-400 font-bold truncate block">{debt.remainingAmount.toLocaleString('tr-TR')} ₺</span>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-500 block">Aylık Taksit</span>
-                    <span className="text-amber-400 font-bold">
+                    <span className="text-amber-400 font-bold truncate block">
                       {debt.monthlyInstallment ? debt.monthlyInstallment.toLocaleString('tr-TR') : '-'} ₺
                     </span>
                   </div>
@@ -178,11 +178,11 @@ export const DebtsPage: React.FC = () => {
 
                 {debt.totalInstallments && debt.totalInstallments > 1 && (
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] font-semibold">
-                      <span className="text-slate-400">
+                    <div className="flex justify-between gap-2 text-[10px] font-semibold">
+                      <span className="text-slate-400 shrink-0">
                         Taksit: {debt.paidInstallments || 0} / {debt.totalInstallments}
                       </span>
-                      <span className="text-slate-400">%{progress.toFixed(0)}</span>
+                      <span className="text-slate-400 shrink-0">%{progress.toFixed(0)}</span>
                     </div>
                     <div className="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-emerald-950/30">
                       <div

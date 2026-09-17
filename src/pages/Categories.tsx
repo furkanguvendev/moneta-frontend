@@ -50,7 +50,6 @@ export const Categories = () => {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-12">
-      {/* Header */}
       <div className="flex flex-col gap-2 border-b border-emerald-950/40 pb-6">
         <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">
           Kategori Yönetimi
@@ -61,7 +60,6 @@ export const Categories = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Kategori Ekleme Formu */}
         <div className="card-premium bg-[#04110d]/60 border border-emerald-950/50 p-6 rounded-3xl space-y-4">
           <h2 className="text-base font-bold text-slate-200">Yeni Kategori Ekle</h2>
 
@@ -121,13 +119,12 @@ export const Categories = () => {
           </form>
         </div>
 
-        {/* Kategori Listesi */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex justify-between items-center px-1">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide">
               Mevcut Kategoriler
             </h2>
-            <span className="text-xs text-emerald-400 font-semibold">
+            <span className="text-xs text-emerald-400 font-semibold shrink-0">
               {(categories?.length || 0) + (mandatoryCategories?.length || 0)} Kategori
             </span>
           </div>
@@ -150,15 +147,14 @@ export const Categories = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Kullanıcı Kategorileri */}
               {categories?.map((cat: CategoryResponse) => (
                 <div
                   key={cat.id}
-                  className="group flex justify-between items-center p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/30 transition-all"
+                  className="group flex items-center justify-between gap-2 p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/30 transition-all"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <span
-                      className={`text-[10px] font-black px-2 py-1 rounded-md border ${
+                      className={`text-[10px] font-black px-2 py-1 rounded-md border shrink-0 ${
                         cat.isMandatory
                           ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
                           : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -166,14 +162,14 @@ export const Categories = () => {
                     >
                       {cat.isMandatory ? "ZORUNLU" : "ÖZEL"}
                     </span>
-                    <span className="text-sm font-bold text-slate-200">
+                    <span className="text-sm font-bold text-slate-200 truncate">
                       {cat.name}
                     </span>
                   </div>
 
                   <button
                     onClick={() => handleDelete(cat.id)}
-                    className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
+                    className="text-slate-500 hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1 shrink-0"
                     title="Kategoriyi Sil"
                   >
                     ✕
@@ -181,20 +177,17 @@ export const Categories = () => {
                 </div>
               ))}
 
-              {/* Zorunlu / Sistem Kategorileri */}
               {mandatoryCategories?.map((cat: CategoryResponse) => (
                 <div
                   key={`mand-${cat.id}`}
-                  className="flex justify-between items-center p-4 rounded-2xl bg-[#04110d]/20 border border-slate-800/40 opacity-75"
+                  className="flex items-center gap-3 min-w-0 p-4 rounded-2xl bg-[#04110d]/20 border border-slate-800/40 opacity-75"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black px-2 py-1 rounded-md border bg-slate-500/10 text-slate-400 border-slate-500/20">
-                      SİSTEM
-                    </span>
-                    <span className="text-sm font-bold text-slate-300">
-                      {cat.name}
-                    </span>
-                  </div>
+                  <span className="text-[10px] font-black px-2 py-1 rounded-md border bg-slate-500/10 text-slate-400 border-slate-500/20 shrink-0">
+                    SİSTEM
+                  </span>
+                  <span className="text-sm font-bold text-slate-300 truncate">
+                    {cat.name}
+                  </span>
                 </div>
               ))}
             </div>

@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:9090/api/v1',
-    timeout: 5000,
+    baseURL: import.meta.env.VITE_API_URL,
+    timeout: 60000,
     headers: {
         'Content-Type': 'application/json'
     }
@@ -29,11 +29,15 @@ axiosInstance.interceptors.response.use(
     },
     (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-
             useAuthStore.getState().logout();
-            
             window.location.href = '/login?error=session_expired';
         }
+
+        const backendMessage = error.response?.data?.message;
+        if (backendMessage && typeof backendMessage === 'string') {
+            error.message = backendMessage;
+        }
+
         return Promise.reject(error);
     }
 );

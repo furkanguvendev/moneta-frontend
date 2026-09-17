@@ -26,6 +26,10 @@ const router = createBrowserRouter([
     element: <LandingGuard />,
   },
   {
+    path: "/aboutUs",
+    element: <Landing />,
+  },
+  {
     path: "/login",
     element: <Login />,
   },

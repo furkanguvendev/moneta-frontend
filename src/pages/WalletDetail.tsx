@@ -39,21 +39,31 @@ export const WalletDetail: React.FC = () => {
   const [editingTxId, setEditingTxId] = useState<number | null>(null);
   const syncedWalletRef = useRef<number | null>(null);
 
-  useEffect(() => {
+    useEffect(() => {
+    let cancelled = false;
+
     const loadWalletData = async () => {
-      if (walletId && currentUserId) {
-        if (syncedWalletRef.current !== walletId) {
-          syncedWalletRef.current = walletId;
-          const today = new Date();
-          await syncInstallments(walletId, today.getFullYear(), today.getMonth() + 1);
-        }
-        fetchWallets();
-        fetchTransactions(walletId);
-        fetchSimulations(currentUserId);
-        fetchWalletMonthlyBreakdown(walletId);
+      if (!walletId || !currentUserId) return;
+
+      if (syncedWalletRef.current !== walletId) {
+        syncedWalletRef.current = walletId;
+        const today = new Date();
+        await syncInstallments(walletId, today.getFullYear(), today.getMonth() + 1);
       }
+
+      if (cancelled) return;
+
+      fetchWallets();
+      fetchTransactions(walletId);
+      fetchSimulations(currentUserId);
+      fetchWalletMonthlyBreakdown(walletId);
     };
+
     loadWalletData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [walletId, currentUserId]);
 
   const wallet = wallets.find((w) => w.id === walletId);
@@ -130,7 +140,7 @@ export const WalletDetail: React.FC = () => {
     }
   };
 
-    const handleDeleteMonth = async (year: number, month: number) => {
+  const handleDeleteMonth = async (year: number, month: number) => {
     if (window.confirm(`${month}/${year} dönemine ait tüm işlemleri silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) {
       const success = await deleteTransactionsByMonth(walletId, year, month);
       if (success) {
@@ -167,20 +177,20 @@ export const WalletDetail: React.FC = () => {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-emerald-950/40 pb-6">
-        <div>
+        <div className="min-w-0">
           <button 
             onClick={() => navigate("/dashboard")} 
             className="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition-colors mb-2 block cursor-pointer"
           >
             ← Hesaplarıma Geri Dön
           </button>
-          <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">{wallet.name}</h1>
+          <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl truncate">{wallet.name}</h1>
           <p className="text-xs text-slate-500 mt-1">Hesap Türü: {wallet.currency} Cüzdanı</p>
         </div>
 
-        <div className="bg-[#0b3324]/30 border border-emerald-500/20 rounded-2xl p-4 min-w-[200px] text-right">
+        <div className="w-full sm:w-auto sm:min-w-[200px] bg-[#0b3324]/30 border border-emerald-500/20 rounded-2xl p-4 text-right shrink-0">
           <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400/50">Güncel Bakiye</div>
-          <div className="text-2xl font-black text-emerald-400 mt-1">
+          <div className="text-2xl font-black text-emerald-400 mt-1 truncate">
             {wallet.balance.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
           </div>
         </div>
@@ -202,21 +212,21 @@ export const WalletDetail: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {walletSimulations.map((sim) => (
-                  <div key={sim.id} className="p-4 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50 flex justify-between items-center">
-                    <div>
+                  <div key={sim.id} className="p-4 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div className="min-w-0">
                       <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                         {sim.investmentType}
                       </span>
-                      <div className="text-base font-black text-white mt-2">
+                      <div className="text-base font-black text-white mt-2 truncate">
                         {sim.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
                       </div>
-                      <span className="text-[10px] text-slate-500 block mt-0.5">
+                      <span className="text-[10px] text-slate-500 block mt-0.5 truncate">
                         Giriş: {sim.entryValue}
                       </span>
                     </div>
                     <button
                       onClick={() => setIsInvestmentModalOpen(true)}
-                      className="px-3 py-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-xl transition cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-xl transition cursor-pointer shrink-0 self-start sm:self-auto"
                     >
                       Yönet / Boz
                     </button>
@@ -262,12 +272,12 @@ export const WalletDetail: React.FC = () => {
             ) : (
               <div className="space-y-2">
                 {transactions.map((tx) => (
-                  <div key={tx.id} className="group flex justify-between items-center p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-200">{tx.description || "Açıklama Belirtilmemiş"}</span>
+                  <div key={tx.id} className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-slate-200 truncate max-w-[220px] sm:max-w-[280px]">{tx.description || "Açıklama Belirtilmemiş"}</span>
                         {tx.categoryName && (
-                          <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40">{tx.categoryName}</span>
+                          <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40 shrink-0">{tx.categoryName}</span>
                         )}
                       </div>
                       
@@ -292,13 +302,13 @@ export const WalletDetail: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
                       <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
                         {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
                       </span>
                       <button
                         onClick={() => handleDeleteTransaction(tx.id)}
-                        className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
+                        className="text-slate-500 hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
                         title="İşlemi Sil"
                       >
                         ✕

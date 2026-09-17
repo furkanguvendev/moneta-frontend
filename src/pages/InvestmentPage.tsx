@@ -98,7 +98,6 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Form Kartı */}
         <div className="card-premium bg-gradient-to-br from-[#0b3324]/20 to-transparent p-6 rounded-3xl border border-emerald-950/40 space-y-4 h-fit">
           <h2 className="text-lg font-bold text-slate-200 tracking-wide">
             Yeni Simülasyon Başlat
@@ -113,7 +112,7 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
                 <select
                   value={activeWalletId}
                   onChange={(e) => setSelectedWalletId(Number(e.target.value))}
-                  className="w-full bg-[#04110d] border border-emerald-950/60 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-[#04110d] border border-emerald-950/60 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 truncate"
                 >
                   {wallets.map((w) => (
                     <option key={w.id} value={w.id}>
@@ -194,7 +193,6 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
           </form>
         </div>
 
-        {/* Simülasyon Listesi */}
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">
             Aktif Simülasyonlar
@@ -219,43 +217,43 @@ export const InvestmentPage: React.FC<InvestmentPageProps> = ({ initialWalletId 
             {simulations.map((sim) => (
               <div
                 key={sim.id}
-                className="p-5 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all space-y-3 flex flex-col justify-between"
+                className="p-5 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all space-y-3 flex flex-col justify-between min-w-0"
               >
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                  <div className="flex justify-between items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20 shrink-0">
                         {sim.investmentType}
                       </span>
                       {sim.maturityType && (
-                        <span className="text-[10px] font-semibold text-slate-400 bg-slate-800/60 px-1.5 py-0.5 rounded border border-slate-700/50">
+                        <span className="text-[10px] font-semibold text-slate-400 bg-slate-800/60 px-1.5 py-0.5 rounded border border-slate-700/50 shrink-0">
                           {sim.maturityType}
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-slate-500 shrink-0">
                       {new Date(sim.startDate).toLocaleDateString('tr-TR')}
                     </span>
                   </div>
 
                   <div className="pt-2 space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">Anapara:</span>
-                      <strong className="text-slate-200">
+                    <div className="flex justify-between gap-2 text-xs">
+                      <span className="text-slate-500 shrink-0">Anapara:</span>
+                      <strong className="text-slate-200 truncate">
                         {sim.amount.toLocaleString('tr-TR')} TL
                       </strong>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">
+                    <div className="flex justify-between gap-2 text-xs">
+                      <span className="text-slate-500 shrink-0">
                         {sim.investmentType === 'FAIZ' ? 'Faiz Oranı:' : 'Giriş Değeri:'}
                       </span>
-                      <strong className="text-slate-200">
+                      <strong className="text-slate-200 truncate">
                         {sim.entryValue} {sim.investmentType === 'FAIZ' && '%'}
                       </strong>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">Bitiş Tarihi:</span>
-                      <strong className="text-slate-400">
+                    <div className="flex justify-between gap-2 text-xs">
+                      <span className="text-slate-500 shrink-0">Bitiş Tarihi:</span>
+                      <strong className="text-slate-400 truncate">
                         {new Date(sim.endDate).toLocaleDateString('tr-TR')}
                       </strong>
                     </div>

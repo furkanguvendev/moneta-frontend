@@ -131,22 +131,22 @@ export const WalletMonthlyDetail: React.FC = () => {
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-950/40 pb-6">
-        <div className="space-y-2">
+        <div className="space-y-2 min-w-0">
           <button
             onClick={() => navigate(`/wallets/${walletId}`)}
             className="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition-colors cursor-pointer w-fit"
           >
             ← Cüzdan Detayına Geri Dön
           </button>
-          <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">
+          <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl truncate">
             {monthName} {parsedYear} Özeti
           </h1>
-          <p className="text-xs text-slate-500">{wallet.name} ({wallet.currency})</p>
+          <p className="text-xs text-slate-500 truncate">{wallet.name} ({wallet.currency})</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-950/20 transition-all cursor-pointer w-fit"
+          className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-950/20 transition-all cursor-pointer w-full md:w-fit shrink-0"
         >
           + Yeni İşlem Ekle
         </button>
@@ -155,21 +155,21 @@ export const WalletMonthlyDetail: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50">
           <span className="text-xs text-slate-500 uppercase font-bold">Toplam Gelir</span>
-          <div className="text-xl font-black text-emerald-400 mt-1">
+          <div className="text-xl font-black text-emerald-400 mt-1 truncate">
             +{income.toLocaleString('tr-TR')} {symbol}
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50">
           <span className="text-xs text-slate-500 uppercase font-bold">Toplam Gider</span>
-          <div className="text-xl font-black text-rose-400 mt-1">
+          <div className="text-xl font-black text-rose-400 mt-1 truncate">
             -{expense.toLocaleString('tr-TR')} {symbol}
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-[#04110d]/60 border border-emerald-950/50">
           <span className="text-xs text-slate-500 uppercase font-bold">Aylık Net Durum</span>
-          <div className={`text-xl font-black mt-1 ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className={`text-xl font-black mt-1 truncate ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
             {net >= 0 ? '+' : ''}{net.toLocaleString('tr-TR')} {symbol}
           </div>
         </div>
@@ -183,9 +183,9 @@ export const WalletMonthlyDetail: React.FC = () => {
           <div className="space-y-3">
             {statistics.map((stat) => (
               <div key={stat.categoryId} className="space-y-1">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-300">{stat.categoryName}</span>
-                  <span className="text-slate-400">
+                <div className="flex justify-between gap-2 text-xs font-semibold">
+                  <span className="text-slate-300 truncate min-w-0">{stat.categoryName}</span>
+                  <span className="text-slate-400 shrink-0">
                     {stat.totalAmount.toLocaleString('tr-TR')} {symbol} (%{stat.percentage.toFixed(1)})
                   </span>
                 </div>
@@ -214,18 +214,18 @@ export const WalletMonthlyDetail: React.FC = () => {
           <div className="bg-[#04110d]/60 border border-emerald-950/50 rounded-2xl overflow-hidden">
             <div className="divide-y divide-emerald-950/40">
               {filteredTransactions.map((tx) => (
-                <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-emerald-950/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full ${tx.transactionType === "INCOME" ? "bg-emerald-400" : "bg-rose-400"}`} />
-                    <div>
-                      <p className="text-sm font-bold text-white">{tx.description || tx.categoryName}</p>
-                      <p className="text-[10px] text-slate-500">
+                <div key={tx.id} className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 hover:bg-emerald-950/20 transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${tx.transactionType === "INCOME" ? "bg-emerald-400" : "bg-rose-400"}`} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate max-w-[220px] sm:max-w-[320px]">{tx.description || tx.categoryName}</p>
+                      <p className="text-[10px] text-slate-500 truncate">
                         {tx.categoryName} • {tx.transactionDate ? new Date(tx.transactionDate).toLocaleDateString('tr-TR') : ''}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
                     <span className={`text-sm font-black ${tx.transactionType === "INCOME" ? "text-emerald-400" : "text-rose-400"}`}>
                       {tx.transactionType === "INCOME" ? "+" : "-"}{tx.amount.toLocaleString('tr-TR')} {symbol}
                     </span>

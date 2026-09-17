@@ -18,7 +18,7 @@ export const DashboardTasks: React.FC<DashboardTasksProps> = ({
         <h3 className="text-sm font-bold text-slate-200 tracking-wide">
           Son İşlemler & Dağılım
         </h3>
-        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md font-semibold">
+        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md font-semibold shrink-0">
           Canlı Veri
         </span>
       </div>
@@ -37,14 +37,14 @@ export const DashboardTasks: React.FC<DashboardTasksProps> = ({
                 key={wallet.id}
                 className="flex flex-col space-y-1.5 p-3 rounded-xl bg-[#04110d]/40 border border-emerald-950/30 hover:border-emerald-800/20 transition-colors"
               >
-                <div className="flex justify-between items-center text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="font-semibold text-slate-200">
+                <div className="flex justify-between items-center gap-2 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <span className="font-semibold text-slate-200 truncate">
                       {wallet.name}
                     </span>
                   </div>
-                  <span className="font-bold text-slate-300">
+                  <span className="font-bold text-slate-300 shrink-0">
                     {wallet.balance.toLocaleString("tr-TR")}{" "}
                     {currencySymbols[wallet.currency] || wallet.currency}
                   </span>

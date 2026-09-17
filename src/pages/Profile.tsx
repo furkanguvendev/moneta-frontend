@@ -124,8 +124,8 @@ export const Profile: React.FC = () => {
               {getInitials(userProfile?.firstName, userProfile?.lastName, userProfile?.username || authUser?.userName)}
             </div>
 
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-slate-100 tracking-wide">
+            <div className="space-y-2 w-full min-w-0">
+              <h2 className="text-2xl font-bold text-slate-100 tracking-wide truncate">
                 {userProfile?.firstName || userProfile?.lastName
                   ? `${userProfile?.firstName || ""} ${userProfile?.lastName || ""}`.trim()
                   : userProfile?.username || authUser?.userName || "Kullanıcı"}
@@ -157,7 +157,7 @@ export const Profile: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-7 flex flex-col space-y-6 w-full">
+        <div className="lg:col-span-7 flex flex-col space-y-6 w-full min-w-0">
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-emerald-900/30 via-emerald-950/40 to-emerald-950/20 border border-emerald-800/40 rounded-3xl p-8 shadow-2xl space-y-4 relative overflow-hidden">
@@ -170,11 +170,11 @@ export const Profile: React.FC = () => {
               <div className="flex flex-wrap gap-6 items-baseline">
                 {Object.keys(balancesByCurrency).length > 0 ? (
                   Object.entries(balancesByCurrency).map(([curr, amount]) => (
-                    <div key={curr} className="flex items-baseline gap-1">
-                      <span className="text-3xl lg:text-4xl font-black text-white tracking-tight">
+                    <div key={curr} className="flex items-baseline gap-1 min-w-0">
+                      <span className="text-3xl lg:text-4xl font-black text-white tracking-tight truncate">
                         {amount.toLocaleString("tr-TR")}
                       </span>
-                      <span className="text-lg font-bold text-emerald-400">
+                      <span className="text-lg font-bold text-emerald-400 shrink-0">
                         {getCurrencySymbol(curr)}
                       </span>
                     </div>
@@ -196,11 +196,11 @@ export const Profile: React.FC = () => {
                 Toplam Kalan Borç
               </span>
               
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl lg:text-4xl font-black text-white tracking-tight">
+              <div className="flex items-baseline gap-1 min-w-0">
+                <span className="text-3xl lg:text-4xl font-black text-white tracking-tight truncate">
                   {totalRemainingDebt.toLocaleString("tr-TR")}
                 </span>
-                <span className="text-lg font-bold text-rose-400">₺</span>
+                <span className="text-lg font-bold text-rose-400 shrink-0">₺</span>
               </div>
 
               <p className="text-xs text-slate-400 pt-3 border-t border-rose-900/30">
@@ -229,32 +229,32 @@ export const Profile: React.FC = () => {
                 {wallets.map((wallet) => (
                   <div
                     key={wallet.id}
-                    className="p-5 bg-emerald-950/30 hover:bg-emerald-950/40 rounded-2xl border border-emerald-800/30 hover:border-emerald-500/40 transition-all duration-300 shadow-lg flex items-center justify-between group"
+                    className="p-5 bg-emerald-950/30 hover:bg-emerald-950/40 rounded-2xl border border-emerald-800/30 hover:border-emerald-500/40 transition-all duration-300 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400 group-hover:scale-105 transition-transform">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400 group-hover:scale-105 transition-transform shrink-0">
                         <FaWallet className="w-5 h-5" />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-base text-slate-100">{wallet.name}</h4>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-base text-slate-100 truncate">{wallet.name}</h4>
                         <span className="text-[11px] text-slate-400 font-semibold uppercase">
                           {wallet.currency || "TRY"} Cüzdanı
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0">
                       <div className="text-right">
                         <span className="text-[10px] text-slate-400 font-medium block uppercase tracking-wider">
                           Bakiye
                         </span>
-                        <span className="font-black text-emerald-400 text-xl">
+                        <span className="font-black text-emerald-400 text-xl truncate block max-w-[160px]">
                           {Number(wallet.balance).toLocaleString("tr-TR")} {getCurrencySymbol(wallet.currency)}
                         </span>
                       </div>
                       <button
                         onClick={() => handleDeleteWallet(wallet.id)}
-                        className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/20 transition-all cursor-pointer hover:scale-105"
+                        className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/20 transition-all cursor-pointer hover:scale-105 shrink-0"
                         title="Cüzdanı Sil"
                       >
                         <FaTrashAlt className="w-4 h-4" />

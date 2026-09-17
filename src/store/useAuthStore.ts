@@ -14,6 +14,8 @@ interface AuthState {
     isAuthenticated: boolean;
     isLoading: boolean;
     error: string | null;
+    hasHydrated: boolean;
+    setHasHydrated: (state: boolean) => void;
     loginUser: (credentials: LoginData) => Promise<void>;
     registerUser: (userData: RegisterData, successCallback: () => void) => Promise<void>;
     logout: () => void;
@@ -28,7 +30,12 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
-                                                                                                        
+            hasHydrated: false,
+
+            setHasHydrated: (state) => {
+                set({ hasHydrated: state });
+            },
+
             loginUser: async (credentials) => {
                 set({ isLoading: true, error: null });
                 try {
@@ -38,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
                         isAuthenticated: true,
                         isLoading: false,
                         user: {
-                            id: data.id, 
+                            id: data.id,
                             userName: data.username,
                             email: data.email
                         }
@@ -54,29 +61,32 @@ export const useAuthStore = create<AuthState>()(
                 try {
                     await authService.register(userData);
                     set({ isLoading: false });
-                    successCallback(); 
+                    successCallback();
                 } catch (err: unknown) {
                     const errorMessage = err instanceof Error ? err.message : "Kayıt işlemi başarısız oldu.";
                     set({ error: errorMessage, isLoading: false });
                 }
             },
 
-            logout: () => set({ 
-                user: null, 
-                token: null, 
+            logout: () => set({
+                user: null,
+                token: null,
                 isAuthenticated: false,
-                error: null 
+                error: null
             }),
 
             clearAuthError: () => set({ error: null })
         }),
         {
             name: "moneta-auth-storage",
-            partialize: (state) => ({ 
-                user: state.user, 
-                token: state.token, 
-                isAuthenticated: state.isAuthenticated 
+            partialize: (state) => ({
+                user: state.user,
+                token: state.token,
+                isAuthenticated: state.isAuthenticated
             }),
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
         }
     )
 );
