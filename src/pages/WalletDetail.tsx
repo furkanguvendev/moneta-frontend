@@ -39,7 +39,7 @@ export const WalletDetail: React.FC = () => {
   const [editingTxId, setEditingTxId] = useState<number | null>(null);
   const syncedWalletRef = useRef<number | null>(null);
 
-    useEffect(() => {
+  useEffect(() => {
     let cancelled = false;
 
     const loadWalletData = async () => {
@@ -86,7 +86,7 @@ export const WalletDetail: React.FC = () => {
 
   const handleSaveTransaction = async (
     data: TransactionRequest & { paymentMethod: string; installmentCount?: number; transactionDate?: string }
-  ) => {
+  ): Promise<boolean> => {
     const isInstallment = data.paymentMethod === "CREDIT_CARD" && (data.installmentCount ?? 1) > 1;
 
     let success: boolean;
@@ -110,6 +110,8 @@ export const WalletDetail: React.FC = () => {
       fetchWalletMonthlyBreakdown(walletId);
       fetchTransactions(walletId);
     }
+
+    return success;
   };
 
   const handleDateChange = async (tx: TransactionResponse, newDate: string) => {

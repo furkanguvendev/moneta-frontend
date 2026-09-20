@@ -92,7 +92,7 @@ export const WalletMonthlyDetail: React.FC = () => {
 
   const handleAddTransaction = async (
     data: TransactionRequest & { paymentMethod: string; installmentCount?: number; transactionDate?: string }
-  ) => {
+  ): Promise<boolean> => {
     const isInstallment = data.paymentMethod === "CREDIT_CARD" && (data.installmentCount ?? 1) > 1;
 
     let success: boolean;
@@ -117,6 +117,8 @@ export const WalletMonthlyDetail: React.FC = () => {
       fetchTransactions(walletId);
       fetchStatistics(walletId);
     }
+
+    return success;
   };
 
   const handleDeleteTransaction = async (txId: number) => {
