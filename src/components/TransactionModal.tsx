@@ -17,7 +17,7 @@ interface TransactionModalProps {
     paymentMethod: PaymentMethod;
     installmentCount?: number;
     transactionDate?: string;
-  }) => void;
+  }) => Promise<boolean>;
 }
 
 const MIN_INSTALLMENTS = 2;
@@ -45,6 +45,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [transactionDate, setTransactionDate] = useState<string>(getTodayDateString());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -120,7 +121,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearActionError();
     if (!amount) return;
@@ -147,15 +148,20 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       transactionDate: transactionDate || undefined
     };
 
-    onSave(payload);
+    setIsSubmitting(true);
+    const success = await onSave(payload);
+    setIsSubmitting(false);
 
-    setAmount("");
-    setCategoryId("");
-    setDescription("");
-    setPaymentMethod("CASH");
-    setInstallmentCountInput("2");
-    setInstallmentError(null);
-    setTransactionDate(getTodayDateString());
+    if (success) {
+      setAmount("");
+      setCategoryId("");
+      setDescription("");
+      setPaymentMethod("CASH");
+      setInstallmentCountInput("2");
+      setInstallmentError(null);
+      setTransactionDate(getTodayDateString());
+      onClose();
+    }
   };
 
   const handleClose = () => {
@@ -372,10 +378,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           <button 
             type="submit" 
-            disabled={isAddingNewCategory}
+            disabled={isAddingNewCategory || isSubmitting}
             className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800/40 disabled:text-zinc-600 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/10 transition-all cursor-pointer mt-2"
           >
-            İşlemi Kaydet
+            {isSubmitting ? "Kaydediliyor..." : "İşlemi Kaydet"}
           </button>
         </form>
       </div>
