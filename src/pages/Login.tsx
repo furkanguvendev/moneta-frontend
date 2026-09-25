@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
-import budget from "../assets/budget.jpeg";
+import moneta from "../assets/moneta.jpg";
 import { FaLinkedin, FaBriefcase, FaInfoCircle } from "react-icons/fa";
 import { useAuthStore } from "../store/useAuthStore";
 import { type LoginData } from "../services/authService";
@@ -31,9 +31,9 @@ export const Login: React.FC = () => {
       {/* Sol Panel - Tanıtım / Branding */}
       <div className="login-info-side flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#0b3324] to-[#04110d] text-center border-b md:border-b-0 md:border-r border-emerald-950/40">
         <img 
-          src={budget} 
+          src={moneta} 
           className="w-80 md:w-96 rounded-3xl shadow-2xl border-4 border-white/10 object-cover mb-6" 
-          alt="Moneta Budget"
+          alt="Moneta budget"
         />
         <h1 className="text-4xl lg:text-5xl font-black tracking-wider text-emerald-400 mb-2">MONETA</h1>
         <h2 className="text-sm lg:text-base font-medium text-white/90 max-w-xs leading-relaxed mb-6">
