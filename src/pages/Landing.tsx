@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import moneta from "../assets/icon.jpg"
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export const Landing: React.FC = () => {
       <header className="landing-header sticky top-0 z-50 backdrop-blur-md bg-[#04110d]/80 border-b border-white/5 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img 
-            src="https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=64&auto=format&fit=crop&q=80" 
+            src={moneta} 
             alt="Moneta Logo" 
             className="w-8 h-8 rounded-lg object-cover ring-1 ring-emerald-500/30" 
           />
