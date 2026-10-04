@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useTransactionStore } from "../store/useTransactionStore";
@@ -19,6 +19,8 @@ const currencySymbols: Record<string, string> = {
   GBP: '£'
 };
 
+const COLORS = ["#10b981", "#f43f5e"];
+
 export const WalletDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -31,12 +33,13 @@ export const WalletDetail: React.FC = () => {
   const { transactions, isLoading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction, deleteTransactionsByMonth } = useTransactionStore();
   const { simulations, fetchSimulations } = useInvestmentStore();
   const { createDebt, syncInstallments } = useDebtStore();
-  
+
   const { monthlyBreakdownList, fetchWalletMonthlyBreakdown } = useAnalyticsStore();
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
   const [editingTxId, setEditingTxId] = useState<number | null>(null);
+  const [visibleTransactionCount, setVisibleTransactionCount] = useState(8);
   const syncedWalletRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -69,20 +72,29 @@ export const WalletDetail: React.FC = () => {
   const wallet = wallets.find((w) => w.id === walletId);
   const walletSimulations = simulations.filter((s) => s.walletId === walletId);
 
-  const totalIncome = transactions
-    .filter((t) => t.transactionType === "INCOME")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const sortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => {
+      const dateA = a.transactionDate ? new Date(a.transactionDate).getTime() : 0;
+      const dateB = b.transactionDate ? new Date(b.transactionDate).getTime() : 0;
+      if (dateB !== dateA) return dateB - dateA;
+      return b.id - a.id;
+    });
+  }, [transactions]);
 
-  const totalExpense = transactions
-    .filter((t) => t.transactionType === "EXPENSE")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const { totalIncome, totalExpense } = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    for (const t of transactions) {
+      if (t.transactionType === "INCOME") income += t.amount;
+      else if (t.transactionType === "EXPENSE") expense += t.amount;
+    }
+    return { totalIncome: income, totalExpense: expense };
+  }, [transactions]);
 
   const chartData = [
     { name: "Gelir", value: totalIncome },
     { name: "Gider", value: totalExpense },
   ];
-
-  const COLORS = ["#10b981", "#f43f5e"];
 
   const handleSaveTransaction = async (
     data: TransactionRequest & { paymentMethod: string; installmentCount?: number; transactionDate?: string }
@@ -116,7 +128,7 @@ export const WalletDetail: React.FC = () => {
 
   const handleDateChange = async (tx: TransactionResponse, newDate: string) => {
     if (!newDate) return;
-    
+
     const success = await updateTransaction(tx.id, walletId, {
       amount: tx.amount,
       description: tx.description,
@@ -166,8 +178,8 @@ export const WalletDetail: React.FC = () => {
         <span className="text-xs text-rose-400 font-medium block mb-4">
           {error || "Cüzdan bulunamadı veya bu cüzdana erişim yetkiniz yok!"}
         </span>
-        <button 
-          onClick={() => navigate("/dashboard")} 
+        <button
+          onClick={() => navigate("/dashboard")}
           className="px-4 py-2 bg-white/10 text-white hover:bg-white/20 rounded-xl text-xs font-bold cursor-pointer transition-all"
         >
           Dashboard'a Dön
@@ -176,12 +188,14 @@ export const WalletDetail: React.FC = () => {
     );
   }
 
+  const symbol = currencySymbols[wallet.currency] || wallet.currency;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-emerald-950/40 pb-6">
         <div className="min-w-0">
-          <button 
-            onClick={() => navigate("/dashboard")} 
+          <button
+            onClick={() => navigate("/dashboard")}
             className="text-xs text-emerald-400 hover:text-emerald-300 font-bold transition-colors mb-2 block cursor-pointer"
           >
             ← Hesaplarıma Geri Dön
@@ -193,14 +207,14 @@ export const WalletDetail: React.FC = () => {
         <div className="w-full sm:w-auto sm:min-w-[200px] bg-[#0b3324]/30 border border-emerald-500/20 rounded-2xl p-4 text-right shrink-0">
           <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400/50">Güncel Bakiye</div>
           <div className="text-2xl font-black text-emerald-400 mt-1 truncate">
-            {wallet.balance.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
+            {wallet.balance.toLocaleString('tr-TR')} {symbol}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          
+
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
               <h2 className="text-lg font-bold text-slate-200 tracking-wide">Aktif Yatırımlar</h2>
@@ -220,7 +234,7 @@ export const WalletDetail: React.FC = () => {
                         {sim.investmentType}
                       </span>
                       <div className="text-base font-black text-white mt-2 truncate">
-                        {sim.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
+                        {sim.amount.toLocaleString('tr-TR')} {symbol}
                       </div>
                       <span className="text-[10px] text-slate-500 block mt-0.5 truncate">
                         Giriş: {sim.entryValue}
@@ -240,21 +254,21 @@ export const WalletDetail: React.FC = () => {
 
           <div className="space-y-3">
             <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Aylık Bütçe Dökümü</h2>
-            
+
             {monthlyBreakdownList.length === 0 ? (
               <div className="p-4 rounded-2xl bg-[#04110d]/20 border border-emerald-950/30 text-xs text-slate-500">
                 Aylık özet verisi bulunamadı.
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {monthlyBreakdownList.map((item, idx) => (
+                {monthlyBreakdownList.map((item) => (
                   <MonthlyCard
-                    key={idx}
+                    key={`${item.year}-${item.month}`}
                     year={item.year}
                     month={item.month}
                     totalIncome={item.totalIncome}
                     totalExpense={item.totalExpense}
-                    currencySymbol={currencySymbols[wallet.currency] || wallet.currency}
+                    currencySymbol={symbol}
                     onClick={() => navigate(`/wallets/${walletId}/month/${item.year}/${item.month}`)}
                     onDelete={() => handleDeleteMonth(item.year, item.month)}
                   />
@@ -264,61 +278,88 @@ export const WalletDetail: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-200 tracking-wide px-1">Son Hesap Hareketleri</h2>
-            
-            {transactions.length === 0 ? (
+            <div className="flex justify-between items-center px-1">
+              <h2 className="text-lg font-bold text-slate-200 tracking-wide">Son Hesap Hareketleri</h2>
+              {sortedTransactions.length > 0 && (
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {Math.min(visibleTransactionCount, sortedTransactions.length)} / {sortedTransactions.length} işlem
+                </span>
+              )}
+            </div>
+
+            {sortedTransactions.length === 0 ? (
               <div className="border-dashed border-2 border-emerald-500/10 p-8 rounded-3xl text-center min-h-[200px] flex flex-col items-center justify-center bg-[#04110d]/20">
                 <p className="text-emerald-400/60 font-medium text-sm">Bu cüzdana ait henüz bir harcama veya gelir kaydı bulunmuyor.</p>
                 <p className="text-xs text-slate-600 mt-1">İşlem eklemek için sağ paneli kullanabilirsiniz.</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {transactions.map((tx) => (
-                  <div key={tx.id} className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all">
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-slate-200 truncate max-w-[220px] sm:max-w-[280px]">{tx.description || "Açıklama Belirtilmemiş"}</span>
-                        {tx.categoryName && (
-                          <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40 shrink-0">{tx.categoryName}</span>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        {editingTxId === tx.id ? (
-                          <input
-                            type="datetime-local"
-                            defaultValue={tx.transactionDate ? tx.transactionDate.slice(0, 16) : ""}
-                            onBlur={(e) => handleDateChange(tx, e.target.value)}
-                            className="bg-zinc-900 text-emerald-400 text-[10px] px-2 py-1 rounded border border-emerald-500/30 focus:outline-none"
-                            autoFocus
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => setEditingTxId(tx.id)}
-                            className="text-[10px] text-slate-500 hover:text-emerald-400 cursor-pointer transition-colors block"
-                            title="Tarihi değiştirmek için tıklayın"
-                          >
-                            📅 {tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('tr-TR') : ''}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+              <>
+                <div className="space-y-2">
+                  {sortedTransactions.slice(0, visibleTransactionCount).map((tx) => (
+                    <div key={tx.id} className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl bg-[#04110d]/40 border border-emerald-950/40 hover:border-emerald-800/20 transition-all">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-slate-200 truncate max-w-[220px] sm:max-w-[280px]">{tx.description || "Açıklama Belirtilmemiş"}</span>
+                          {tx.categoryName && (
+                            <span className="text-[10px] bg-zinc-900 text-slate-400 px-2 py-0.5 rounded-md border border-emerald-950/40 shrink-0">{tx.categoryName}</span>
+                          )}
+                        </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
-                      <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {currencySymbols[wallet.currency] || wallet.currency}
-                      </span>
-                      <button
-                        onClick={() => handleDeleteTransaction(tx.id)}
-                        className="text-slate-500 hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
-                        title="İşlemi Sil"
-                      >
-                        ✕
-                      </button>
+                        <div className="flex items-center gap-2">
+                          {editingTxId === tx.id ? (
+                            <input
+                              type="datetime-local"
+                              defaultValue={tx.transactionDate ? tx.transactionDate.slice(0, 16) : ""}
+                              onBlur={(e) => handleDateChange(tx, e.target.value)}
+                              className="bg-zinc-900 text-emerald-400 text-[10px] px-2 py-1 rounded border border-emerald-500/30 focus:outline-none"
+                              autoFocus
+                            />
+                          ) : (
+                            <span
+                              onClick={() => setEditingTxId(tx.id)}
+                              className="text-[10px] text-slate-500 hover:text-emerald-400 cursor-pointer transition-colors block"
+                              title="Tarihi değiştirmek için tıklayın"
+                            >
+                              📅 {tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('tr-TR') : ''}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                        <span className={`text-sm font-black ${tx.transactionType === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {tx.transactionType === 'INCOME' ? '+' : '-'} {tx.amount.toLocaleString('tr-TR')} {symbol}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteTransaction(tx.id)}
+                          className="text-slate-500 hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 cursor-pointer text-xs p-1"
+                          title="İşlemi Sil"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+
+                {sortedTransactions.length > visibleTransactionCount && (
+                  <button
+                    onClick={() => setVisibleTransactionCount((prev) => prev + 8)}
+                    className="w-full py-2.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 text-emerald-400 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer"
+                  >
+                    Daha Fazla Göster
+                  </button>
+                )}
+
+                {visibleTransactionCount > 8 && visibleTransactionCount >= sortedTransactions.length && (
+                  <button
+                    onClick={() => setVisibleTransactionCount(8)}
+                    className="w-full py-2 text-slate-500 hover:text-slate-300 text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    Daha Az Göster
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -330,15 +371,15 @@ export const WalletDetail: React.FC = () => {
               <p className="text-xs text-slate-400 leading-relaxed">
                 Bu cüzdana anlık olarak yeni gelir/gider ekleyin veya simüle edilmiş yatırım başlatın.
               </p>
-              
-              <button 
+
+              <button
                 onClick={() => setIsModalOpen(true)}
                 className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/10"
               >
                 + Yeni İşlem Ekle
               </button>
 
-              <button 
+              <button
                 onClick={() => setIsInvestmentModalOpen(true)}
                 className="w-full py-3 bg-emerald-950/50 hover:bg-emerald-900/40 text-emerald-400 border border-emerald-500/20 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
               >
@@ -362,11 +403,11 @@ export const WalletDetail: React.FC = () => {
                       paddingAngle={4}
                       dataKey="value"
                     >
-                      {chartData.map((_entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      {chartData.map((entry, index) => (
+                        <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ backgroundColor: "#03140f", borderColor: "#064e3b", borderRadius: "12px" }}
                       itemStyle={{ color: "#fff", fontSize: "12px" }}
                     />
@@ -375,7 +416,7 @@ export const WalletDetail: React.FC = () => {
                 <div className="absolute text-center pointer-events-none mb-1">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Net Durum</span>
                   <span className={`text-sm font-black ${(totalIncome - totalExpense) >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                    {(totalIncome - totalExpense).toLocaleString("tr-TR")} {currencySymbols[wallet.currency] || wallet.currency}
+                    {(totalIncome - totalExpense).toLocaleString("tr-TR")} {symbol}
                   </span>
                 </div>
               </div>
@@ -386,14 +427,14 @@ export const WalletDetail: React.FC = () => {
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                     <span className="text-slate-400 font-medium">Gelir</span>
                   </div>
-                  <strong className="text-white">{totalIncome.toLocaleString("tr-TR")} {currencySymbols[wallet.currency] || wallet.currency}</strong>
+                  <strong className="text-white">{totalIncome.toLocaleString("tr-TR")} {symbol}</strong>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
                     <span className="text-slate-400 font-medium">Gider</span>
                   </div>
-                  <strong className="text-white">{totalExpense.toLocaleString("tr-TR")} {currencySymbols[wallet.currency] || wallet.currency}</strong>
+                  <strong className="text-white">{totalExpense.toLocaleString("tr-TR")} {symbol}</strong>
                 </div>
               </div>
             </div>
@@ -401,7 +442,7 @@ export const WalletDetail: React.FC = () => {
         </div>
       </div>
 
-      <TransactionModal 
+      <TransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         walletId={walletId}
@@ -411,7 +452,7 @@ export const WalletDetail: React.FC = () => {
       {isInvestmentModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl bg-[#03140f] border border-emerald-950/60 rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <button 
+            <button
               onClick={() => setIsInvestmentModalOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold p-2 cursor-pointer z-10"
             >

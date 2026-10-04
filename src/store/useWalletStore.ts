@@ -17,7 +17,7 @@ interface WalletState {
 export const useWalletStore = create<WalletState>((set) => ({
   wallets: [],
   currentWallet: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
 
   fetchWallets: async () => {
@@ -25,14 +25,14 @@ export const useWalletStore = create<WalletState>((set) => ({
     const rawUserId = authState.user?.id; 
 
     if (!rawUserId) {
-      set({ error: "Oturum açmış kullanıcı bulunamadı." });
+      set({ error: "Oturum açmış kullanıcı bulunamadı.", isLoading: false });
       return;
     }
 
     const userId = Number(rawUserId);
 
     if (isNaN(userId)) {
-      set({ error: "Geçersiz kullanıcı ID formatı." });
+      set({ error: "Geçersiz kullanıcı ID formatı.", isLoading: false });
       return;
     }
 
