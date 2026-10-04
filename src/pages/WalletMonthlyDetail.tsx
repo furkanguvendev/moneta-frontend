@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWalletStore } from "../store/useWalletStore";
 import { useAnalyticsStore } from "../store/useAnalyticsStore";
@@ -26,49 +26,89 @@ export const WalletMonthlyDetail: React.FC = () => {
   const walletId = Number(id);
   const parsedYear = Number(year);
   const parsedMonth = Number(month);
+  const currentKey = `${walletId}-${parsedYear}-${parsedMonth}`;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const syncedKeyRef = useRef<string | null>(null);
 
   const { wallets, fetchWallets } = useWalletStore();
   const { monthlyBreakdownList, fetchWalletMonthlyBreakdown } = useAnalyticsStore();
-  const { 
-    transactions, 
-    statistics, 
-    fetchTransactions, 
-    fetchStatistics, 
-    addTransaction, 
-    deleteTransaction 
+  const {
+    transactions,
+    fetchTransactions,
+    addTransaction,
+    deleteTransaction
   } = useTransactionStore();
   const { createDebt, syncInstallments } = useDebtStore();
 
+  const isDataLoading = loadedKey !== currentKey;
+
   useEffect(() => {
-    const key = `${walletId}-${parsedYear}-${parsedMonth}`;
-    if (syncedKeyRef.current === key) return;
-    syncedKeyRef.current = key;
+    if (syncedKeyRef.current === currentKey) return;
+    syncedKeyRef.current = currentKey;
 
     const loadMonthData = async () => {
-      if (walletId && parsedYear && parsedMonth) {
-        await syncInstallments(walletId, parsedYear, parsedMonth);
-        fetchWallets();
-        fetchWalletMonthlyBreakdown(walletId);
-        fetchTransactions(walletId);
-        fetchStatistics(walletId);
+      try {
+        if (walletId && parsedYear && parsedMonth) {
+          await syncInstallments(walletId, parsedYear, parsedMonth);
+          await Promise.all([
+            fetchWallets(),
+            fetchWalletMonthlyBreakdown(walletId),
+            fetchTransactions(walletId),
+          ]);
+        }
+      } finally {
+        setLoadedKey(currentKey);
       }
     };
     loadMonthData();
-  }, [walletId, parsedYear, parsedMonth]);
+  }, [currentKey, walletId, parsedYear, parsedMonth]);
 
   const wallet = wallets.find((w) => w.id === walletId);
   const currentBreakdown = monthlyBreakdownList.find(
     (b) => b.year === parsedYear && b.month === parsedMonth
   );
 
-  const filteredTransactions = transactions.filter((tx) => {
-    if (!tx.transactionDate) return false;
-    const date = new Date(tx.transactionDate);
-    return date.getFullYear() === parsedYear && date.getMonth() + 1 === parsedMonth;
-  });
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((tx) => {
+      if (!tx.transactionDate) return false;
+      const date = new Date(tx.transactionDate);
+      return date.getFullYear() === parsedYear && date.getMonth() + 1 === parsedMonth;
+    });
+  }, [transactions, parsedYear, parsedMonth]);
+
+  const monthlyCategoryBreakdown = useMemo(() => {
+    const expenseTransactions = filteredTransactions.filter((tx) => tx.transactionType === "EXPENSE");
+    const totalExpense = expenseTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+    const grouped = new Map<string, { categoryName: string; totalAmount: number }>();
+
+    for (const tx of expenseTransactions) {
+      const key = tx.categoryName || "Kategorisiz";
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.totalAmount += tx.amount;
+      } else {
+        grouped.set(key, { categoryName: key, totalAmount: tx.amount });
+      }
+    }
+
+    return Array.from(grouped.values())
+      .map((item) => ({
+        ...item,
+        percentage: totalExpense > 0 ? (item.totalAmount / totalExpense) * 100 : 0,
+      }))
+      .sort((a, b) => b.totalAmount - a.totalAmount);
+  }, [filteredTransactions]);
+
+  if (isDataLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <span className="text-emerald-400 text-sm font-medium">Aylık özet yükleniyor...</span>
+      </div>
+    );
+  }
 
   if (!wallet) {
     return (
@@ -115,7 +155,6 @@ export const WalletMonthlyDetail: React.FC = () => {
       fetchWallets();
       fetchWalletMonthlyBreakdown(walletId);
       fetchTransactions(walletId);
-      fetchStatistics(walletId);
     }
 
     return success;
@@ -178,13 +217,15 @@ export const WalletMonthlyDetail: React.FC = () => {
       </div>
 
       <div className="p-6 rounded-3xl bg-[#04110d]/50 border border-emerald-950/40 space-y-4">
-        <h2 className="text-sm font-bold text-white tracking-wide uppercase">Kategori Bazlı Gider Dağılımı</h2>
-        {statistics.length === 0 ? (
-          <p className="text-xs text-slate-500">Bu cüzdana ait henüz kategori verisi bulunmuyor.</p>
+        <h2 className="text-sm font-bold text-white tracking-wide uppercase">
+          {monthName} {parsedYear} Kategori Bazlı Gider Dağılımı
+        </h2>
+        {monthlyCategoryBreakdown.length === 0 ? (
+          <p className="text-xs text-slate-500">Bu aya ait henüz kategori verisi bulunmuyor.</p>
         ) : (
           <div className="space-y-3">
-            {statistics.map((stat) => (
-              <div key={stat.categoryId} className="space-y-1">
+            {monthlyCategoryBreakdown.map((stat) => (
+              <div key={stat.categoryName} className="space-y-1">
                 <div className="flex justify-between gap-2 text-xs font-semibold">
                   <span className="text-slate-300 truncate min-w-0">{stat.categoryName}</span>
                   <span className="text-slate-400 shrink-0">
@@ -205,7 +246,7 @@ export const WalletMonthlyDetail: React.FC = () => {
 
       <div className="space-y-4">
         <h2 className="text-md font-bold text-white">{monthName} {parsedYear} İşlem Detayları</h2>
-        
+
         {filteredTransactions.length === 0 ? (
           <div className="border border-emerald-950/40 p-8 text-center rounded-3xl bg-[#04110d]/40">
             <p className="text-sm text-slate-400">
