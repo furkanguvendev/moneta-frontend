@@ -30,7 +30,7 @@ export const WalletDetail: React.FC = () => {
   const currentUserId = user?.id || 0;
 
   const { wallets, fetchWallets } = useWalletStore();
-  const { transactions, isLoading, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction, deleteTransactionsByMonth } = useTransactionStore();
+  const { transactions, error, fetchTransactions, addTransaction, updateTransaction, deleteTransaction, deleteTransactionsByMonth } = useTransactionStore();
   const { simulations, fetchSimulations } = useInvestmentStore();
   const { createDebt, syncInstallments } = useDebtStore();
 
@@ -40,7 +40,10 @@ export const WalletDetail: React.FC = () => {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
   const [editingTxId, setEditingTxId] = useState<number | null>(null);
   const [visibleTransactionCount, setVisibleTransactionCount] = useState(8);
+  const [loadedWalletId, setLoadedWalletId] = useState<number | null>(null);
   const syncedWalletRef = useRef<number | null>(null);
+
+  const isDataLoading = loadedWalletId !== walletId;
 
   useEffect(() => {
     let cancelled = false;
@@ -48,18 +51,24 @@ export const WalletDetail: React.FC = () => {
     const loadWalletData = async () => {
       if (!walletId || !currentUserId) return;
 
-      if (syncedWalletRef.current !== walletId) {
-        syncedWalletRef.current = walletId;
-        const today = new Date();
-        await syncInstallments(walletId, today.getFullYear(), today.getMonth() + 1);
+      try {
+        if (syncedWalletRef.current !== walletId) {
+          syncedWalletRef.current = walletId;
+          const today = new Date();
+          await syncInstallments(walletId, today.getFullYear(), today.getMonth() + 1);
+        }
+
+        if (cancelled) return;
+
+        await Promise.allSettled([
+          fetchWallets(),
+          fetchTransactions(walletId),
+          fetchSimulations(currentUserId),
+          fetchWalletMonthlyBreakdown(walletId),
+        ]);
+      } finally {
+        if (!cancelled) setLoadedWalletId(walletId);
       }
-
-      if (cancelled) return;
-
-      fetchWallets();
-      fetchTransactions(walletId);
-      fetchSimulations(currentUserId);
-      fetchWalletMonthlyBreakdown(walletId);
     };
 
     loadWalletData();
@@ -164,7 +173,7 @@ export const WalletDetail: React.FC = () => {
     }
   };
 
-  if (isLoading && transactions.length === 0) {
+  if (isDataLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <span className="text-emerald-400 text-sm font-medium">Cüzdan ve işlemler yükleniyor...</span>
