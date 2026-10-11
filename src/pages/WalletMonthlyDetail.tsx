@@ -52,7 +52,7 @@ export const WalletMonthlyDetail: React.FC = () => {
       try {
         if (walletId && parsedYear && parsedMonth) {
           await syncInstallments(walletId, parsedYear, parsedMonth);
-          await Promise.all([
+          await Promise.allSettled([
             fetchWallets(),
             fetchWalletMonthlyBreakdown(walletId),
             fetchTransactions(walletId),
